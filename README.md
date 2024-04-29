@@ -27,6 +27,13 @@ Unofficial Quake III Arena gamecode patch
  * added crosshair color change to UI in game options.
 
 # IMAGES
+![out4](https://github.com/Kr3m/foundation-core/assets/290740/8d9435b0-0488-4489-a0ab-6561e89ae29b)
+
+![out1](https://github.com/Kr3m/foundation-core/assets/290740/05d15bdd-eeb1-4c4d-b3a5-139e25584a66)
+
+![out27](https://github.com/Kr3m/foundation-core/assets/290740/614b2c47-d2f4-4a4e-8f65-e7a375cf0834)
+
+![out28](https://github.com/Kr3m/foundation-core/assets/290740/cd193987-78af-4625-8c13-a0bbd610cce6)
 
 # TODO:
 
