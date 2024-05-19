@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 
 #define	PM_SKIN "pm"
+#define FB_SKIN "fb"
 
 static const char *cg_customSoundNames[ MAX_CUSTOM_SOUNDS ] = {
 	"*death1.wav",
@@ -348,6 +349,9 @@ static qboolean	CG_FindClientModelFile( char *filename, int length, clientInfo_t
 	if ( ci->coloredSkin && !Q_stricmp( ci->skinName, PM_SKIN ) ) {
 		team = PM_SKIN;
 	}
+	if ( ci->coloredSkin && !Q_stricmp( ci->skinName, FB_SKIN ) ) {
+		team = FB_SKIN;
+	}
 
 	charactersFolder = "";
 	while(1) {
@@ -433,6 +437,9 @@ static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t 
 	// colored skins
 	if ( ci->coloredSkin && !Q_stricmp( ci->headSkinName, PM_SKIN ) ) {
 		team = PM_SKIN;
+	}
+	if ( ci->coloredSkin && !Q_stricmp( ci->headSkinName, FB_SKIN ) ) {
+		team = FB_SKIN;
 	}
 
 	if ( headModelName[0] == '*' ) {
@@ -1008,11 +1015,13 @@ static void CG_SetSkinAndModel( clientInfo_t *newInfo,
 	char newSkin[ MAX_QPATH ];
 	char *skin, *slash;
 	qboolean	pm_model;
+	qboolean	fb_model;
 	team_t		team;
 	const char	*colors;
 	
 	team = newInfo->team;
 	pm_model = ( Q_stricmp( cg_enemyModel.string, PM_SKIN ) == 0 ) ? qtrue : qfalse;
+	fb_model = ( Q_stricmp( cg_enemyModel.string, FB_SKIN ) == 0 ) ? qtrue : qfalse;
 
 	if ( cg_forceModel.integer || cg_enemyModel.string[0] || cg_teamModel.string[0] )
 	{
@@ -1020,18 +1029,29 @@ static void CG_SetSkinAndModel( clientInfo_t *newInfo,
 		{
 			// enemy model
 			if ( cg_enemyModel.string[0] && team != myTeam && team != TEAM_SPECTATOR ) {
-				if ( pm_model )
+				if ( pm_model || fb_model ) {
 					Q_strncpyz( modelName, infomodel, modelNameSize );
-				else
+					skin = strchr( modelName, '/' );
+					// force skin
+					if ( pm_model )
+						strcpy( newSkin, PM_SKIN );
+					else
+						strcpy( newSkin, FB_SKIN );
+					if ( skin )
+						*skin = '\0';
+				}
+				else {
 					Q_strncpyz( modelName, cg_enemyModel.string, modelNameSize );
+					skin = strchr( modelName, '/' );
+					if ( !skin ) {
+						Q_strncpyz( newSkin, PM_SKIN, skinNameSize );
+					} else {
+						Q_strncpyz( newSkin, skin + 1, skinNameSize );
+						*skin = '\0';
+					}
+				}
 
-				skin = strchr( modelName, '/' );
-				// force skin
-				strcpy( newSkin, PM_SKIN );
-				if ( skin )
-					*skin = '\0';
-
-				if ( pm_model && !CG_IsKnownModel( modelName ) ) {
+				if ( ( pm_model || fb_model ) && !CG_IsKnownModel( modelName ) ) {
 					// revert to default model if specified skin is not known
 					Q_strncpyz( modelName, "sarge", modelNameSize );
 				}
@@ -1050,19 +1070,30 @@ static void CG_SetSkinAndModel( clientInfo_t *newInfo,
 			} else if ( cg_teamModel.string[0] && team == myTeam && team != TEAM_SPECTATOR && clientNum != myClientNum ) {
 				// teammodel
 				pm_model = ( Q_stricmp( cg_teamModel.string, PM_SKIN ) == 0 ) ? qtrue : qfalse;
+				fb_model = ( Q_stricmp( cg_enemyModel.string, FB_SKIN ) == 0 ) ? qtrue : qfalse;
 
-				if ( pm_model )
+				if ( pm_model || fb_model ) {
 					Q_strncpyz( modelName, infomodel, modelNameSize );
-				else
+					skin = strchr( modelName, '/' );
+					// force skin
+					if ( pm_model )
+						strcpy( newSkin, PM_SKIN );
+					else
+						strcpy( newSkin, FB_SKIN );
+					if ( skin )
+						*skin = '\0';
+				} else {
 					Q_strncpyz( modelName, cg_teamModel.string, modelNameSize );
+					skin = strchr( modelName, '/' );
+					if ( !skin ) {
+						Q_strncpyz( newSkin, PM_SKIN, skinNameSize );
+					} else {
+						Q_strncpyz( newSkin, skin + 1, skinNameSize );
+						*skin = '\0';
+					}
+				}
 
-				skin = strchr( modelName, '/' );
-				// force skin
-				strcpy( newSkin, PM_SKIN );
-				if ( skin )
-					*skin = '\0';
-
-				if ( pm_model && !CG_IsKnownModel( modelName ) ) {
+				if ( ( pm_model || fb_model ) && !CG_IsKnownModel( modelName ) ) {
 					// revert to default model if specified skin is not known
 					Q_strncpyz( modelName, "sarge", modelNameSize );
 				}
