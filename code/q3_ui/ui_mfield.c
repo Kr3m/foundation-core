@@ -39,7 +39,7 @@ void MField_Draw( mfield_t *edit, int x, int y, int style, vec4_t color ) {
 	char	str[MAX_STRING_CHARS];
 
 	drawLen = edit->widthInChars;
-	len     = strlen( edit->buffer ) + 1;
+	len		= strlen( edit->buffer ) + 1;
 
 	// guarantee that cursor will be visible
 	if ( len <= drawLen ) {
@@ -318,10 +318,10 @@ void MenuField_Init( menufield_s* m ) {
 		l = 0;
 	}
 
-	m->generic.left   = m->generic.x - l;
-	m->generic.top    = m->generic.y;
-	m->generic.right  = m->generic.x + w + m->field.widthInChars*w;
-	m->generic.bottom = m->generic.y + h;
+	m->generic.left		= m->generic.x - l;
+	m->generic.top		= m->generic.y;
+	m->generic.right	= m->generic.x + w + m->field.widthInChars*w;
+	m->generic.bottom	= m->generic.y + h;
 }
 
 /*
@@ -334,7 +334,7 @@ void MenuField_Draw( menufield_s *f )
 	int		x;
 	int		y;
 	int		w;
-	//int		h;
+	//int	h;
 	int		style;
 	qboolean focus;
 	float	*color;

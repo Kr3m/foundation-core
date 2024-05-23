@@ -842,7 +842,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	// the intermission has allready been qualified for, so don't
+	// the intermission has already been qualified for, so don't
 	// allow any extra scoring
 	if ( level.intermissionQueued ) {
 		return;
@@ -1101,7 +1101,7 @@ qboolean CanDamage( gentity_t *targ, vec3_t origin )
 	vec3_t	dest;
 	trace_t	tr;
 	vec3_t	midpoint;
-	vec3_t				size;
+	vec3_t	size;
 
 	// use the midpoint of the bounds instead of the origin, because bmodels may have their origin 0,0,0
 	VectorAdd (targ->r.absmin, targ->r.absmax, midpoint);

@@ -111,7 +111,7 @@ static void Text_Draw( menutext_s *t )
 {
 	int		x;
 	int		y;
-	char	buff[512];	
+	char	buff[512];
 	float*	color;
 
 	x = t->generic.x;
@@ -121,12 +121,12 @@ static void Text_Draw( menutext_s *t )
 
 	// possible label
 	if (t->generic.name)
-		strcpy(buff,t->generic.name);
+		strcpy(buff, t->generic.name);
 
 	// possible value
 	if (t->string)
-		strcat(buff,t->string);
-		
+		strcat(buff, t->string);
+
 	if (t->generic.flags & QMF_GRAYED)
 		color = text_color_disabled;
 	else
@@ -134,6 +134,115 @@ static void Text_Draw( menutext_s *t )
 
 	UI_DrawString( x, y, buff, t->style, color );
 }
+
+#ifdef NEOHUD
+/*
+=================
+SText_Init
+=================
+*/
+static void SText_Init(menutext_s *t)
+{
+	int	x, y, w, h;
+	int charw, charh;
+	charw = BIGCHAR_WIDTH;
+	charh = BIGCHAR_HEIGHT;
+	if (t->style & UI_SMALLFONT) {
+		charw = SMALLCHAR_WIDTH;
+		charh = SMALLCHAR_HEIGHT;
+	}
+	else if (t->style & UI_GIANTFONT)
+	{
+		charw = GIANTCHAR_WIDTH;
+		charh = GIANTCHAR_HEIGHT;
+	}
+	x = t->generic.x;
+	y = t->generic.y;
+	w = charw * strlen(t->string);
+	h = charh;
+	if (t->generic.flags & QMF_RIGHT_JUSTIFY) {
+		x -= w;
+	}
+	else if (t->generic.flags & QMF_CENTER_JUSTIFY) {
+		x -= w / 2;
+	}
+	t->generic.left = x - 4; // 4 allow a larger selection
+	t->generic.right = x + w + 10; // 10 allow a larger selection
+	t->generic.top = y;
+	t->generic.bottom = y + h;
+}
+
+
+/*
+=================
+SText_Draw
+=================
+*/
+static void SText_Draw(menutext_s *t)
+{
+	int		x;
+	int		y;
+	char	buff[512];
+	float*	color;
+
+	int		style;//from PText_Draw
+	vec4_t	drawcolor;//from UI_DrawProportionalString
+
+	x = t->generic.x;
+	y = t->generic.y;
+
+	buff[0] = '\0';
+
+	// possible label
+	if (t->generic.name)
+		strcpy(buff, t->generic.name);
+
+	// possible value
+	if (t->string)
+		strcat(buff, t->string);
+
+	style = t->style;
+	if (t->generic.flags & QMF_PULSEIFFOCUS) {
+		if (Menu_ItemAtCursor(t->generic.parent) == t) {
+			style |= UI_PULSE;
+		}
+		else {
+			style |= UI_INVERSE;
+		}
+	}
+
+	if (t->generic.flags & QMF_GRAYED)
+		color = text_color_disabled;
+	else
+		color = t->color;
+
+	if (style & UI_INVERSE) {
+		drawcolor[0] = color[0] * 0.7;
+		drawcolor[1] = color[1] * 0.7;
+		drawcolor[2] = color[2] * 0.7;
+		drawcolor[3] = color[3];
+
+		UI_DrawString(x, y, buff, t->style, drawcolor);
+
+		return;
+	}
+	if (style & UI_PULSE) {
+
+		UI_DrawString(x, y, buff, t->style, color);
+
+		drawcolor[0] = color[0];
+		drawcolor[1] = color[1];
+		drawcolor[2] = color[2];
+		drawcolor[3] = 0.5 + 0.5 * sin((uis.realtime % TMOD_075) / PULSE_DIVISOR);
+
+		UI_DrawString(x, y, buff, t->style, drawcolor);
+
+		return;
+	}
+
+	UI_DrawString(x, y, buff, t->style, color);
+}
+#endif
 
 /*
 =================
@@ -894,13 +1003,13 @@ static void ScrollList_Init( menulist_s *l )
 
 	if( !l->columns ) {
 		l->columns = 1;
-		l->seperation = 0;
+		l->separation = 0;
 	}
-	else if( !l->seperation ) {
-		l->seperation = 3;
+	else if( !l->separation ) {
+		l->separation = 3;
 	}
 
-	w = ( (l->width + l->seperation) * l->columns - l->seperation) * SMALLCHAR_WIDTH;
+	w = ( (l->width + l->separation) * l->columns - l->separation) * SMALLCHAR_WIDTH;
 
 	l->generic.left   =	l->generic.x;
 	l->generic.top    = l->generic.y;	
@@ -940,14 +1049,14 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 				// check scroll region
 				x = l->generic.x;
 				y = l->generic.y;
-				w = ( (l->width + l->seperation) * l->columns - l->seperation) * SMALLCHAR_WIDTH;
+				w = ( (l->width + l->separation) * l->columns - l->separation) * SMALLCHAR_WIDTH;
 				if( l->generic.flags & QMF_CENTER_JUSTIFY ) {
 					x -= w / 2;
 				}
 				if (UI_CursorInRect( x, y, w, l->height*SMALLCHAR_HEIGHT ))
 				{
 					cursorx = (uis.cursorx - x)/SMALLCHAR_WIDTH;
-					column = cursorx / (l->width + l->seperation);
+					column = cursorx / (l->width + l->separation);
 					cursory = (uis.cursory - y)/SMALLCHAR_HEIGHT;
 					index = column * l->height + cursory;
 					if (l->top + index < l->numitems)
@@ -1117,7 +1226,7 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 				return (menu_move_sound);
 			}
 			return (menu_buzz_sound);
-		
+
 		case K_KP_UPARROW:
 		case K_UPARROW:
 			if( l->curvalue == 0 ) {
@@ -1325,7 +1434,7 @@ void ScrollList_Draw( menulist_s *l )
 
 			y += SMALLCHAR_HEIGHT;
 		}
-		x += (l->width + l->seperation) * SMALLCHAR_WIDTH;
+		x += (l->width + l->separation) * SMALLCHAR_WIDTH;
 	}
 }
 
@@ -1379,7 +1488,11 @@ void Menu_AddItem( menuframework_s *menu, void *item )
 			case MTYPE_TEXT:
 				Text_Init((menutext_s*)item);
 				break;
-
+#ifdef NEOHUD
+			case MTYPE_STEXT:
+				SText_Init((menutext_s*)item);
+				break;
+#endif
 			case MTYPE_SCROLLLIST:
 				ScrollList_Init((menulist_s*)item);
 				break;
@@ -1571,7 +1684,11 @@ void Menu_Draw( menuframework_s *menu )
 				case MTYPE_TEXT:
 					Text_Draw( (menutext_s*)itemptr );
 					break;
-
+#ifdef NEOHUD
+				case MTYPE_STEXT:
+					SText_Draw((menutext_s*)itemptr);
+					break;
+#endif
 				case MTYPE_SCROLLLIST:
 					ScrollList_Draw( (menulist_s*)itemptr );
 					break;

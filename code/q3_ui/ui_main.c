@@ -154,7 +154,7 @@ UI_VideoCheck
 void UI_VideoCheck( int time ) 
 {
 	if ( abs( time - uis.lastVideoCheck ) > 1000 ) {
-		
+
 		int oldWidth, oldHeight;
 		oldWidth = uis.glconfig.vidWidth;
 		oldHeight = uis.glconfig.vidHeight;
@@ -172,7 +172,7 @@ void UI_VideoCheck( int time )
 			} else {
 				// no wide screen, scale by width
 				uis.scale = uis.glconfig.vidWidth * (1.0/640.0);
-				uis.biasY = 0.5 * ( uis.glconfig.vidHeight - ( uis.glconfig.vidWidth * (480.0/640) ) );
+				uis.biasY = 0.5 * ( uis.glconfig.vidHeight - ( uis.glconfig.vidWidth * (480.0/640.0) ) );
 			}
 
 			uis.screenXmin = 0.0 - (uis.biasX / uis.scale);

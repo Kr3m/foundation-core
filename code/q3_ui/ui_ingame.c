@@ -46,7 +46,7 @@ INGAME MENU
 #define ID_QUIT					17
 #define ID_RESUME				18
 #define ID_TEAMORDERS			19
-
+#define ID_SELECTHUD			20
 
 typedef struct {
 	menuframework_s	menu;
@@ -60,6 +60,9 @@ typedef struct {
 	menutext_s		addbots;
 	menutext_s		removebots;
 	menutext_s		teamorders;
+#ifdef NEOHUD
+	menutext_s		selecthud;
+#endif
 	menutext_s		quit;
 	menutext_s		resume;
 } ingamemenu_t;
@@ -142,7 +145,11 @@ void InGame_Event( void *ptr, int notification ) {
 	case ID_TEAMORDERS:
 		UI_TeamOrdersMenu();
 		break;
-
+#ifdef NEOHUD
+	case ID_SELECTHUD:
+		UI_HudMenu();
+		break;
+#endif
 	case ID_RESUME:
 		UI_PopMenu();
 		break;
@@ -247,6 +254,19 @@ void InGame_MenuInit( void ) {
 	}
 
 	y += INGAME_MENU_VERTICAL_SPACING;
+#ifdef NEOHUD
+	s_ingame.selecthud.generic.type = MTYPE_PTEXT;
+	s_ingame.selecthud.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_ingame.selecthud.generic.x = 320;
+	s_ingame.selecthud.generic.y = y;
+	s_ingame.selecthud.generic.id = ID_SELECTHUD;
+	s_ingame.selecthud.generic.callback = InGame_Event;
+	s_ingame.selecthud.string = "SELECT HUD";
+	s_ingame.selecthud.color = color_red;
+	s_ingame.selecthud.style = UI_CENTER | UI_SMALLFONT;
+
+	y += INGAME_MENU_VERTICAL_SPACING;
+#endif
 	s_ingame.setup.generic.type			= MTYPE_PTEXT;
 	s_ingame.setup.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_ingame.setup.generic.x			= 320;
@@ -320,6 +340,9 @@ void InGame_MenuInit( void ) {
 	Menu_AddItem( &s_ingame.menu, &s_ingame.addbots );
 	Menu_AddItem( &s_ingame.menu, &s_ingame.removebots );
 	Menu_AddItem( &s_ingame.menu, &s_ingame.teamorders );
+#ifdef NEOHUD
+	Menu_AddItem( &s_ingame.menu, &s_ingame.selecthud );
+#endif
 	Menu_AddItem( &s_ingame.menu, &s_ingame.setup );
 	Menu_AddItem( &s_ingame.menu, &s_ingame.server );
 	Menu_AddItem( &s_ingame.menu, &s_ingame.restart );

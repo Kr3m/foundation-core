@@ -42,16 +42,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define WINDOW_MOUSEOVER			0x00000001	// mouse is over it, non exclusive
 #define WINDOW_HASFOCUS				0x00000002	// has cursor focus, exclusive
 #define WINDOW_VISIBLE				0x00000004	// is visible
-#define WINDOW_GREY						0x00000008	// is visible but grey ( non-active )
+#define WINDOW_GREY					0x00000008	// is visible but grey ( non-active )
 #define WINDOW_DECORATION			0x00000010	// for decoration only, no mouse, keyboard, etc.. 
 #define WINDOW_FADINGOUT			0x00000020	// fading out, non-active
 #define WINDOW_FADINGIN				0x00000040	// fading in
-#define WINDOW_MOUSEOVERTEXT	0x00000080	// mouse is over it, non exclusive
-#define WINDOW_INTRANSITION		0x00000100	// window is in transition
-#define WINDOW_FORECOLORSET		0x00000200	// forecolor was explicitly set ( used to color alpha images or not )
+#define WINDOW_MOUSEOVERTEXT		0x00000080	// mouse is over it, non exclusive
+#define WINDOW_INTRANSITION			0x00000100	// window is in transition
+#define WINDOW_FORECOLORSET			0x00000200	// forecolor was explicitly set ( used to color alpha images or not )
 #define WINDOW_HORIZONTAL			0x00000400	// for list boxes and sliders, vertical is default this is set of horizontal
-#define WINDOW_LB_LEFTARROW		0x00000800	// mouse is over left/up arrow
-#define WINDOW_LB_RIGHTARROW	0x00001000	// mouse is over right/down arrow
+#define WINDOW_LB_LEFTARROW			0x00000800	// mouse is over left/up arrow
+#define WINDOW_LB_RIGHTARROW		0x00001000	// mouse is over right/down arrow
 #define WINDOW_LB_THUMB				0x00002000	// mouse is over thumb
 #define WINDOW_LB_PGUP				0x00004000	// mouse is over page up
 #define WINDOW_LB_PGDN				0x00008000	// mouse is over page down
@@ -59,10 +59,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define WINDOW_OOB_CLICK			0x00020000	// close on out of bounds click
 #define WINDOW_WRAPPED				0x00040000	// manually wrap text
 #define WINDOW_AUTOWRAPPED			0x00080000	// auto wrap text
-#define WINDOW_FORCED					0x00100000	// forced open
-#define WINDOW_POPUP					0x00200000	// popup
-#define WINDOW_BACKCOLORSET		0x00400000	// backcolor was explicitly set 
-#define WINDOW_TIMEDVISIBLE		0x00800000	// visibility timing ( NOT implemented )
+#define WINDOW_FORCED				0x00100000	// forced open
+#define WINDOW_POPUP				0x00200000	// popup
+#define WINDOW_BACKCOLORSET			0x00400000	// backcolor was explicitly set 
+#define WINDOW_TIMEDVISIBLE			0x00800000	// visibility timing ( NOT implemented )
 
 
 // CGAME cursor type bits
@@ -329,7 +329,7 @@ typedef struct {
   void (*drawRect) ( float x, float y, float w, float h, float size, const vec4_t color);
   void (*drawSides) (float x, float y, float w, float h, float size);
   void (*drawTopBottom) (float x, float y, float w, float h, float size);
-  void (*clearScene) ();
+  void (*clearScene) ( void );
   void (*addRefEntityToScene) (const refEntity_t *re );
   void (*renderScene) ( const refdef_t *fd );
   void (*registerFont) (const char *pFontname, int pointSize, fontInfo_t *font);
@@ -343,7 +343,7 @@ typedef struct {
   void (*setCVar)(const char *cvar, const char *value);
   void (*drawTextWithCursor)(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style);
   void (*setOverstrikeMode)(qboolean b);
-  qboolean (*getOverstrikeMode)();
+  qboolean (*getOverstrikeMode)( void );
   void (*startLocalSound)( sfxHandle_t sfx, int channelNum );
   qboolean (*ownerDrawHandleKey)(int ownerDraw, int flags, float *special, int key);
   int (*feederCount)(float feederID);
@@ -360,7 +360,7 @@ typedef struct {
 	int (*ownerDrawWidth)(int ownerDraw, float scale);
 	sfxHandle_t (*registerSound)(const char *name, qboolean compressed);
 	void (*startBackgroundTrack)( const char *intro, const char *loop);
-	void (*stopBackgroundTrack)();
+	void (*stopBackgroundTrack)( void );
 	int (*playCinematic)(const char *name, float x, float y, float w, float h);
 	void (*stopCinematic)(int handle);
 	void (*drawCinematic)(int handle, float x, float y, float w, float h);
@@ -386,14 +386,14 @@ typedef struct {
 } displayContextDef_t;
 
 const char *String_Alloc(const char *p);
-void String_Init();
-void String_Report();
+void String_Init( void );
+void String_Report( void );
 void Init_Display(displayContextDef_t *dc);
 void Display_ExpandMacros(char * buff);
 void Menu_Init(menuDef_t *menu);
 void Item_Init(itemDef_t *item);
 void Menu_PostParse(menuDef_t *menu);
-menuDef_t *Menu_GetFocused();
+menuDef_t *Menu_GetFocused( void );
 void Menu_HandleKey(menuDef_t *menu, int key, qboolean down);
 void Menu_HandleMouseMove(menuDef_t *menu, float x, float y);
 void Menu_ScrollFeeder(menuDef_t *menu, int feeder, qboolean down);
@@ -409,33 +409,33 @@ qboolean PC_Int_Parse(int handle, int *i);
 qboolean PC_Rect_Parse(int handle, rectDef_t *r);
 qboolean PC_String_Parse(int handle, const char **out);
 qboolean PC_Script_Parse(int handle, const char **out);
-int Menu_Count();
+int Menu_Count( void );
 void Menu_New(int handle);
-void Menu_PaintAll();
+void Menu_PaintAll( void );
 menuDef_t *Menus_ActivateByName(const char *p);
-void Menu_Reset();
-qboolean Menus_AnyFullScreenVisible();
+void Menu_Reset( void );
+qboolean Menus_AnyFullScreenVisible( void );
 void  Menus_Activate(menuDef_t *menu);
 
-displayContextDef_t *Display_GetContext();
+displayContextDef_t *Display_GetContext( void );
 void *Display_CaptureItem(int x, int y);
 qboolean Display_MouseMove(void *p, int x, int y);
 int Display_CursorType(int x, int y);
-qboolean Display_KeyBindPending();
+qboolean Display_KeyBindPending( void );
 void Menus_OpenByName(const char *p);
 menuDef_t *Menus_FindByName(const char *p);
 void Menus_ShowByName(const char *p);
 void Menus_CloseByName(const char *p);
 void Display_HandleKey(int key, qboolean down, int x, int y);
 void LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
-void Menus_CloseAll();
+void Menus_CloseAll( void );
 void Menu_Paint(menuDef_t *menu, qboolean forcePaint);
 void Menu_SetFeederSelection(menuDef_t *menu, int feeder, int index, const char *name);
-void Display_CacheAll();
+void Display_CacheAll( void );
 
 void *UI_Alloc( int size );
 void UI_InitMemory( void );
-qboolean UI_OutOfMemory();
+qboolean UI_OutOfMemory( void );
 
 void Controls_GetConfig( void );
 void Controls_SetConfig(qboolean restart);

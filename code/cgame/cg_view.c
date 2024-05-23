@@ -42,7 +42,7 @@ Testmodel will create a fake entity 100 units in front of the current view
 position, directly facing the viewer.  It will remain immobile, so you can
 move around it to view it from different angles.
 
-Testgun will cause the model to follow the player around and supress the real
+Testgun will cause the model to follow the player around and suppress the real
 view weapon model.  The default frame 0 of most guns is completely off screen,
 so you will probably have to cycle a couple frames to see it.
 
@@ -319,7 +319,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	float			f;
 	vec3_t			predictedVelocity;
 	int				timeDelta;
-	
+
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
 		return;
 	}
@@ -432,7 +432,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	{
 #define	NECK_LENGTH		8
 	vec3_t			forward, up;
- 
+
 	cg.refdef.vieworg[2] -= NECK_LENGTH;
 	AngleVectors( cg.refdefViewAngles, forward, NULL, up );
 	VectorMA( cg.refdef.vieworg, 3, forward, cg.refdef.vieworg );
@@ -873,7 +873,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 	// build the render lists
 	if ( !cg.hyperspace ) {
-		CG_AddPacketEntities();	// alter calcViewValues, so predicted player state is correct
+		CG_AddPacketEntities(); // alter calcViewValues, so predicted player state is correct
 		CG_AddMarks();
 		CG_AddParticles ();
 		CG_AddLocalEntities();

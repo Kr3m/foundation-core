@@ -233,11 +233,19 @@ static void CG_Obituary( entityState_t *ent ) {
 		} else {
 			s = va("You fragged %s", targetName );
 		}
-#ifdef MISSIONPACK
+#if defined MISSIONPACK
 		if (!(cg_singlePlayerActive.integer && cg_cameraOrbit.integer)) {
 			CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
-		} 
-#else
+		}
+#endif
+#if defined NEOHUD
+		{
+		item_t itm;
+		itm = dyn_itemArray[KillMsg_idx];
+		CG_CenterPrint( s, itm.rect.y, itm.fontsize.w, itm.forecolor.color );
+		}
+#endif
+#if !defined MISSIONPACK && !defined NEOHUD
 		CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 #endif
 
@@ -368,10 +376,10 @@ CG_UseItem
 ===============
 */
 static void CG_UseItem( centity_t *cent ) {
-	clientInfo_t *ci;
-	int			itemNum, clientNum;
+	clientInfo_t	*ci;
+	int		itemNum, clientNum;
 	gitem_t		*item;
-	entityState_t *es;
+	entityState_t	*es;
 
 	es = &cent->currentState;
 	
@@ -381,6 +389,17 @@ static void CG_UseItem( centity_t *cent ) {
 	}
 
 	// print a message if the local player
+#ifdef NEOHUD
+	if ( es->number == cg.snap->ps.clientNum ) {
+		item_t itm = dyn_itemArray[ItemMsg_idx];
+		if ( !itemNum ) {
+			CG_CenterPrint( "No item to use", itm.rect.y, itm.fontsize.w, itm.forecolor.color);
+		} else {
+			item = BG_FindItemForHoldable( itemNum );
+			CG_CenterPrint( va("Use %s", item->pickup_name), itm.rect.y, itm.fontsize.w, itm.forecolor.color);
+		}
+	}
+#else
 	if ( es->number == cg.snap->ps.clientNum ) {
 		if ( !itemNum ) {
 			CG_CenterPrint( "No item to use", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
@@ -389,6 +408,7 @@ static void CG_UseItem( centity_t *cent ) {
 			CG_CenterPrint( va("Use %s", item->pickup_name), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 		}
 	}
+#endif
 
 	switch ( itemNum ) {
 	default:
@@ -732,7 +752,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position, int entityNum ) {
 		trap_S_StartSound (NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*taunt.wav" ) );
 		break;
 
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 	case EV_TAUNT_YES:
 		CG_VoiceChatLocal(SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_YES);
 		break;
@@ -1100,7 +1120,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position, int entityNum ) {
 								CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
 							else
 #endif
-						 	CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
+							CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
 						}
 						else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
 #ifdef MISSIONPACK

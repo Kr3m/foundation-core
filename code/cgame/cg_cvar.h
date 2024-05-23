@@ -30,6 +30,9 @@ CG_CVAR( cg_draw3dIcons, "cg_draw3dIcons", "1", CVAR_ARCHIVE )
 CG_CVAR( cg_drawIcons, "cg_drawIcons", "1", CVAR_ARCHIVE )
 CG_CVAR( cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE )
 CG_CVAR( cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE )
+#ifdef NEOHUD
+CG_CVAR( cg_drawPing, "cg_drawPing", "1", CVAR_ARCHIVE )
+#endif
 CG_CVAR( cg_drawSpeed, "cg_drawSpeed", "0", CVAR_ARCHIVE )
 CG_CVAR( cg_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE )
 CG_CVAR( cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE )
@@ -86,7 +89,7 @@ CG_CVAR( cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO )
 CG_CVAR( cg_stats, "cg_stats", "0", 0 )
 CG_CVAR( cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE )
 CG_CVAR( cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE )
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 CG_CVAR( cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE )
 CG_CVAR( cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE )
 #endif
@@ -95,10 +98,13 @@ CG_CVAR( cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE )
 CG_CVAR( cg_buildScript, "com_buildScript", "0", 0 )	// force loading of all possible data amd error on failures
 CG_CVAR( cg_paused, "cl_paused", "0", CVAR_ROM )
 CG_CVAR( cg_blood, "com_blood", "1", CVAR_ARCHIVE )
+#if defined MISSIONPACK || defined NEOHUD
+CG_CVAR( cg_currentSelectedPlayer, "cg_currentSelectedPlayer", "0", CVAR_ARCHIVE )
+CG_CVAR( cg_hudFiles, "cg_hudFiles", "hud/hud_classic.cfg", CVAR_ARCHIVE )
+#endif
 #ifdef MISSIONPACK
 CG_CVAR( cg_redTeamName, "g_redteam", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO )
 CG_CVAR( cg_blueTeamName, "g_blueteam", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO )
-CG_CVAR( cg_currentSelectedPlayer, "cg_currentSelectedPlayer", "0", CVAR_ARCHIVE )
 CG_CVAR( cg_currentSelectedPlayerName, "cg_currentSelectedPlayerName", "", CVAR_ARCHIVE )
 CG_CVAR( cg_singlePlayer, "ui_singlePlayerActive", "0", CVAR_USERINFO )
 CG_CVAR( cg_enableDust, "g_enableDust", "0", CVAR_SERVERINFO )
@@ -107,7 +113,6 @@ CG_CVAR( cg_singlePlayerActive, "ui_singlePlayerActive", "0", CVAR_USERINFO )
 CG_CVAR( cg_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE )
 CG_CVAR( cg_recordSPDemoName, "ui_recordSPDemoName", "", CVAR_ARCHIVE )
 CG_CVAR( cg_obeliskRespawnDelay, "g_obeliskRespawnDelay", "10", CVAR_SERVERINFO )
-CG_CVAR( cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE )
 #endif
 CG_CVAR( cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT )
 CG_CVAR( cg_cameraOrbitDelay, "cg_cameraOrbitDelay", "50", CVAR_ARCHIVE )

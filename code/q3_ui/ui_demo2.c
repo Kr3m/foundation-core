@@ -41,10 +41,10 @@ DEMOS MENU
 #define ART_ARROWS_UP		"menu/art/arrows_vert_top"
 #define ART_ARROWS_DOWN		"menu/art/arrows_vert_bot"
 
-#define UI_DEMO_LENGTH      64
-#define UI_MAX_DEMOS        1024
-#define UI_MAX_ITEMS        18
-#define NAMEBUFSIZE         65536
+#define UI_DEMO_LENGTH		64
+#define UI_MAX_DEMOS		1024
+#define UI_MAX_ITEMS		18
+#define NAMEBUFSIZE		65536
 
 #define ID_BACK				10
 #define ID_GO				11
@@ -722,8 +722,8 @@ static void Demos_MenuInit( void ) {
 	s_demos.sort.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_demos.sort.generic.callback	= Demos_MenuEvent;
 	s_demos.sort.generic.id			= ID_SORT;
-	//s_demos.sort.generic.x			= 332;
-	//s_demos.sort.generic.y			= 406;
+	//s_demos.sort.generic.x		= 332;
+	//s_demos.sort.generic.y		= 406;
 	s_demos.sort.generic.x			= 485;
 	s_demos.sort.generic.y			= 72;
 	s_demos.sort.itemnames			= sorttype;

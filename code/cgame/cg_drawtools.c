@@ -30,7 +30,7 @@ CG_AdjustFrom640
 Adjusted for resolution and screen aspect ratio
 ================
 */
-void CG_AdjustFrom640( float *x, float *y, float *w, float *h ) 
+void CG_AdjustFrom640( float *x, float *y, float *w, float *h )
 {
 	// scale for screen sizes
 	*x = *x * cgs.screenXScale + cgs.screenXBias;
@@ -122,6 +122,32 @@ void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader 
 	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
+#ifdef NEOHUD
+/*
+================
+CG_DrawGradientPic
+=================
+*/
+void CG_DrawGradientPic(item_t *itm, float x, float y, float width, float height, float s1, float t1, float s2, float t2, qhandle_t hShader) {
+	float _s1, _s2, _t1, _t2;
+	_s1 = s1;
+	_s2 = s2;
+	_t1 = t1;
+	_t2 = t2;
+	if (itm->iconFlags & ICON_INVERT_W) {
+		_s1 = s2;
+		_s2 = s1;
+		//x += width;
+	}
+	if (itm->iconFlags & ICON_INVERT_H) {
+		_t1 = t2;
+		_t2 = t1;
+		y += height;
+	}
+	CG_AdjustFrom640(&x, &y, &width, &height);
+	trap_R_DrawStretchPic(x, y, width, height, _s1, _t1, _s2, _t2, hShader);
+}
+#endif
 
 /*
 ===============
@@ -252,7 +278,17 @@ static font_t numbers;
 static const font_t *font = &bigchars;
 static const font_metric_t *metrics = &bigchars.metrics[0];
 
+#ifdef NEOHUD
+void CG_SelectFont( int textFlags ) 
+{
+	if ( textFlags & DS_FONT_NUMBER )
+		font = &numbers;
+	else //if(textFlags & DS_FONT_LETTER)
+		font = &bigchars;
 
+	metrics = &font->metrics[0];
+}
+#else
 void CG_SelectFont( int index ) 
 {
 	if ( index == 0 )
@@ -263,6 +299,7 @@ void CG_SelectFont( int index )
 	metrics = &font->metrics[0];
 }
 
+#endif
 
 static qboolean CG_FileExist( const char *file )
 {
@@ -581,12 +618,21 @@ void CG_DrawString( float x, float y, const char *string, const vec4_t setColor,
 		return;
 
 	s = (const byte *)string;
-
+#ifndef NEOHUD
+	// this seems equivalent, keep the NEOHUD version only, send to Cyrax
 	ax = x * cgs.screenXScale + cgs.screenXBias;
 	ay = y * cgs.screenYScale + cgs.screenYBias;
 
 	aw = charWidth * cgs.screenXScale;
 	ah = charHeight * cgs.screenYScale;
+#else
+	ax = x;
+	ay = y;
+	aw = charWidth;
+	ah = charHeight;
+
+	CG_AdjustFrom640(&ax, &ay, &aw, &ah);
+#endif
 
 	if ( maxChars <= 0 ) {
 		max_ax = 9999999.0f;
@@ -826,6 +872,36 @@ void CG_TileClear( void ) {
 CG_FadeColor
 ================
 */
+#ifdef NEOHUD
+float *CG_FadeColor( int startMsec, int totalMsec, vec4_t color ) {
+	static vec4_t	col;
+	int				t;
+
+	if ( startMsec == 0 ) {
+		return NULL;
+	}
+
+	t = cg.time - startMsec;
+
+	if ( t >= totalMsec ) {
+		return NULL;
+	}
+
+	col[0] = color[0];
+	col[1] = color[1];
+	col[2] = color[2];
+
+	// fade out
+	if ( totalMsec - t < FADE_TIME ) {
+		col[3] = (totalMsec - t) * 1.0 / FADE_TIME;
+	}
+	else {
+		col[3] = 1.0;
+	}
+
+	return col;
+}
+#else
 float *CG_FadeColor( int startMsec, int totalMsec ) {
 	static vec4_t		color;
 	int			t;
@@ -850,13 +926,43 @@ float *CG_FadeColor( int startMsec, int totalMsec ) {
 
 	return color;
 }
-
+#endif
 
 /*
 ================
 CG_FadeColorTime
 ================
 */
+#ifdef NEOHUD
+float *CG_FadeColorTime( int startMsec, int totalMsec, int fadeMsec, vec4_t color ) {
+	static vec4_t	col;
+	int				t;
+
+	if ( startMsec == 0 ) {
+		return NULL;
+	}
+
+	t = cg.time - startMsec;
+
+	if ( t >= totalMsec ) {
+		return NULL;
+	}
+
+	//Vector4Copy(col, color);
+	col[0] = color[0];
+	col[1] = color[1];
+	col[2] = color[2];
+
+	// fade out
+	if ( totalMsec - t < fadeMsec ) {
+		col[3] = ( totalMsec - t ) * 1.0f/(float)fadeMsec;
+	} else {
+		col[3] = 1.0f;
+	}
+
+	return col;
+}
+#else
 float *CG_FadeColorTime( int startMsec, int totalMsec, int fadeMsec ) {
 	static vec4_t		color;
 	int			t;
@@ -881,7 +987,7 @@ float *CG_FadeColorTime( int startMsec, int totalMsec, int fadeMsec ) {
 
 	return color;
 }
-
+#endif
 
 /*
 ================

@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __UI_LOCAL_H__
 #define __UI_LOCAL_H__
 
+#define NEOHUD
+
 #include "../game/q_shared.h"
 #include "../cgame/tr_types.h"
 //NOTE: include the ui_public.h from the new UI
@@ -52,17 +54,18 @@ typedef void (*voidfunc_f)(void);
 #define MAX_MENUDEPTH			8
 #define MAX_MENUITEMS			64
 
-#define MTYPE_NULL				0
+#define MTYPE_NULL			0
 #define MTYPE_SLIDER			1	
 #define MTYPE_ACTION			2
 #define MTYPE_SPINCONTROL		3
-#define MTYPE_FIELD				4
+#define MTYPE_FIELD			4
 #define MTYPE_RADIOBUTTON		5
 #define MTYPE_BITMAP			6	
-#define MTYPE_TEXT				7
+#define MTYPE_TEXT			7	//simple text, not selectable
 #define MTYPE_SCROLLLIST		8
-#define MTYPE_PTEXT				9
-#define MTYPE_BTEXT				10
+#define MTYPE_PTEXT			9	// proportionnal string
+#define MTYPE_BTEXT			10	// draw a "banner" string
+#define MTYPE_STEXT			11	// like MTYPE_TEXT, but act like PTEXT: pulse and selectable.
 
 #define QMF_BLINK				0x00000001
 #define QMF_SMALLFONT			0x00000002
@@ -169,7 +172,7 @@ typedef struct
 	int width;
 	int height;
 	int	columns;
-	int	seperation;
+	int	separation;
 } menulist_s;
 
 typedef struct
@@ -667,6 +670,14 @@ void UI_RemoveBotsMenu( void );
 extern void UI_TeamOrdersMenu( void );
 extern void UI_TeamOrdersMenu_f( void );
 extern void UI_TeamOrdersMenu_Cache( void );
+
+#ifdef NEOHUD
+//
+// ui_selecthud.c
+//
+void UI_Hud_Cache(void);
+void UI_HudMenu(void);
+#endif
 
 //
 // ui_loadconfig.c

@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
+#ifdef NEOHUD
+#include "cg_drawhud.h"
+#endif
+
 #ifdef MISSIONPACK
 #include "../ui/ui_shared.h"
 
@@ -61,7 +65,7 @@ int CG_Text_Width(const char *text, float scale, int limit) {
 	useScale = scale * font->glyphScale;
   out = 0;
   if (text) {
-    len = strlen(text);
+	len = strlen(text);
 		if (limit > 0 && len > limit) {
 			len = limit;
 		}
@@ -76,9 +80,9 @@ int CG_Text_Width(const char *text, float scale, int limit) {
 				s++;
 				count++;
 			}
-    }
-  }
-  return out * useScale;
+		}
+	}
+	return out * useScale;
 }
 
 int CG_Text_Height(const char *text, float scale, int limit) {
@@ -96,9 +100,9 @@ int CG_Text_Height(const char *text, float scale, int limit) {
 		font = &cgDC.Assets.bigFont;
 	}
 	useScale = scale * font->glyphScale;
-  max = 0;
-  if (text) {
-    len = strlen(text);
+	max = 0;
+	if (text) {
+		len = strlen(text);
 		if (limit > 0 && len > limit) {
 			len = limit;
 		}
@@ -109,14 +113,14 @@ int CG_Text_Height(const char *text, float scale, int limit) {
 				continue;
 			} else {
 				glyph = &font->glyphs[(int)*s]; // TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
-	      if (max < glyph->height) {
-		      max = glyph->height;
-			  }
+				if (max < glyph->height) {
+					max = glyph->height;
+				}
 				s++;
 				count++;
 			}
-    }
-  }
+		}
+	}
   return max * useScale;
 }
 
@@ -146,15 +150,15 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		const char *s = text;
 		trap_R_SetColor( color );
 		memcpy(&newColor[0], &color[0], sizeof(vec4_t));
-    len = strlen(text);
+		len = strlen(text);
 		if (limit > 0 && len > limit) {
 			len = limit;
 		}
 		count = 0;
 		while (s && *s && count < len) {
 			glyph = &font->glyphs[(int)*s]; // TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
-      //int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
-      //float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
+			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
+			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if ( Q_IsColorString( s ) ) {
 				memcpy( newColor, g_color_table[ColorIndex(*(s+1))], sizeof( newColor ) );
 				newColor[3] = color[3];
@@ -193,9 +197,9 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 				s++;
 				count++;
 			}
-    }
-	  trap_R_SetColor( NULL );
-  }
+		}
+		trap_R_SetColor( NULL );
+	}
 }
 
 
@@ -208,7 +212,7 @@ CG_DrawField
 Draws large numbers for status bar and powerups
 ==============
 */
-#ifndef MISSIONPACK
+#if !defined MISSIONPACK && !defined NEOHUD
 static void CG_DrawField (int x, int y, int width, int value) {
 	char	num[16], *ptr;
 	int		l;
@@ -256,13 +260,13 @@ static void CG_DrawField (int x, int y, int width, int value) {
 		else
 			frame = *ptr -'0';
 
-		CG_DrawPic( x,y, CHAR_WIDTH, CHAR_HEIGHT, cgs.media.numberShaders[frame] );
+		CG_DrawPic( x, y, CHAR_WIDTH, CHAR_HEIGHT, cgs.media.numberShaders[frame] );
 		x += CHAR_WIDTH;
 		ptr++;
 		l--;
 	}
 }
-#endif // MISSIONPACK
+#endif // MISSIONPACK || NEOHUD
 
 
 /*
@@ -312,16 +316,26 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 
 /*
 ================
-CG_Draw3DModel
+CG_Draw3DModelColor
 ================
 */
-void CG_Draw3DModelColor( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles, vec3_t color ) {
+void CG_Draw3DModelColor( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles, vec3_t color
+#ifdef NEOHUD
+, qboolean force3D
+#endif
+ ) {
 	refdef_t		refdef;
 	refEntity_t		ent;
 
+#ifdef NEOHUD
+	if (!cg_drawIcons.integer || (!cg_draw3dIcons.integer && !force3D)) {
+		return;
+	}
+#else
 	if ( !cg_draw3dIcons.integer || !cg_drawIcons.integer ) {
 		return;
 	}
+#endif
 
 	CG_AdjustFrom640( &x, &y, &w, &h );
 
@@ -366,7 +380,11 @@ CG_DrawHead
 Used for both the status bar and the scoreboard
 ================
 */
-void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t headAngles ) {
+void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t headAngles
+#ifdef NEOHUD
+, qboolean force3D
+#endif
+ ) {
 	clipHandle_t	cm;
 	clientInfo_t	*ci;
 	float			len;
@@ -375,7 +393,12 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 
 	ci = &cgs.clientinfo[ clientNum ];
 
-	if ( cg_draw3dIcons.integer ) {
+	if ( cg_draw3dIcons.integer
+#ifdef NEOHUD
+	 || force3D
+#endif
+	 ) {
+
 		cm = ci->headModel;
 		if ( !cm ) {
 			return;
@@ -395,7 +418,11 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 		// allow per-model tweaking
 		VectorAdd( origin, ci->headOffset, origin );
 
+#ifdef NEOHUD
+		CG_Draw3DModelColor( x, y, w, h, ci->headModel, ci->headSkin, origin, headAngles, ci->headColor, force3D);
+#else
 		CG_Draw3DModelColor( x, y, w, h, ci->headModel, ci->headSkin, origin, headAngles, ci->headColor );
+#endif
 	} else if ( cg_drawIcons.integer ) {
 		trap_R_SetColor ( NULL );
 		CG_DrawPic( x, y, w, h, ci->modelIcon );
@@ -436,10 +463,10 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 
 		// calculate distance so the flag nearly fills the box
 		// assume heads are taller than wide
-		len = 0.5 * ( maxs[2] - mins[2] );		
+		len = 0.5 * ( maxs[2] - mins[2] );
 		origin[0] = len / 0.268;	// len / tan( fov/2 )
 
-		angles[YAW] = 60 * sin( ( cg.time % TMOD_2000 ) / 2000.0 );;
+		angles[YAW] = 60 * sin( ( cg.time % TMOD_2000 ) / 2000.0 );
 
 		if( team == TEAM_RED ) {
 			handle = cgs.media.redFlagModel;
@@ -464,7 +491,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 			return;
 		}
 		if (item) {
-		  CG_DrawPic( x, y, w, h, cg_items[ ITEM_INDEX(item) ].icon );
+			CG_DrawPic( x, y, w, h, cg_items[ ITEM_INDEX(item) ].icon );
 		}
 	}
 }
@@ -475,7 +502,7 @@ CG_DrawStatusBarHead
 
 ================
 */
-#ifndef MISSIONPACK
+#if !defined MISSIONPACK && !defined NEOHUD
 
 static void CG_DrawStatusBarHead( float x ) {
 	vec3_t		angles;
@@ -535,7 +562,7 @@ CG_DrawStatusBarFlag
 
 ================
 */
-#ifndef MISSIONPACK
+#if !defined MISSIONPACK && !defined NEOHUD
 static void CG_DrawStatusBarFlag( float x, int team ) {
 	CG_DrawFlagModel( x, cgs.screenYmax + 1 - ICON_SIZE, ICON_SIZE, ICON_SIZE, team, qfalse );
 }
@@ -545,9 +572,9 @@ static void CG_DrawStatusBarFlag( float x, int team ) {
 /*
 ================
 CG_DrawTeamBackground
-
 ================
 */
+#ifndef NEOHUD
 void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 {
 	vec4_t		hcolor;
@@ -568,14 +595,14 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 	CG_DrawPic( x, y, w, h, cgs.media.teamStatusBar );
 	trap_R_SetColor( NULL );
 }
-
+#endif
 
 /*
 ================
 CG_DrawStatusBar
 ================
 */
-#ifndef MISSIONPACK
+#if !defined MISSIONPACK && !defined NEOHUD
 #define STATUSBAR_HEIGHT 60
 static void CG_DrawStatusBar( void ) {
 	int			color;
@@ -780,6 +807,7 @@ CG_DrawAttacker
 
 ================
 */
+#ifndef NEOHUD
 static float CG_DrawAttacker( float y ) {
 	int			t;
 	float		size;
@@ -826,13 +854,14 @@ static float CG_DrawAttacker( float y ) {
 
 	return y + BIGCHAR_HEIGHT + 2;
 }
-
+#endif
 
 /*
 ================
 CG_DrawSpeedMeter
 ================
 */
+#ifndef NEOHUD
 static float CG_DrawSpeedMeter( float y ) {
 	const char *s;
 
@@ -853,13 +882,14 @@ static float CG_DrawSpeedMeter( float y ) {
 		return y;
 	}
 }
-
+#endif
 
 /*
 ==================
 CG_DrawSnapshot
 ==================
 */
+#ifndef NEOHUD
 static float CG_DrawSnapshot( float y ) {
 	const char *s;
 
@@ -870,13 +900,14 @@ static float CG_DrawSnapshot( float y ) {
 
 	return y + BIGCHAR_HEIGHT + 4;
 }
-
+#endif
 
 /*
 ==================
 CG_DrawFPS
 ==================
 */
+#ifndef NEOHUD
 #define	FPS_FRAMES	4
 static float CG_DrawFPS( float y ) {
 	const char	*s;
@@ -912,13 +943,14 @@ static float CG_DrawFPS( float y ) {
 
 	return y + BIGCHAR_HEIGHT + 4;
 }
-
+#endif
 
 /*
 =================
 CG_DrawTimer
 =================
 */
+#ifndef NEOHUD
 static float CG_DrawTimer( float y ) {
 	const char	*s;
 	int			mins, seconds;
@@ -935,6 +967,7 @@ static float CG_DrawTimer( float y ) {
 
 	return y + BIGCHAR_HEIGHT + 4;
 }
+#endif
 
 
 /*
@@ -942,6 +975,7 @@ static float CG_DrawTimer( float y ) {
 CG_DrawTeamOverlay
 =================
 */
+#ifndef NEOHUD
 static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	int x, w, h, xx;
 	int i, j, len;
@@ -1101,7 +1135,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 
 	return ret_y;
 }
-
+#endif
 
 /*
 =====================
@@ -1109,6 +1143,7 @@ CG_DrawUpperRight
 
 =====================
 */
+#ifndef NEOHUD
 static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 {
 	float	y;
@@ -1134,7 +1169,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 		y = CG_DrawAttacker( y );
 	}
 }
-
+#endif
 
 /*
 ===========================================================================================
@@ -1151,7 +1186,7 @@ CG_DrawScores
 Draw the small two score display
 =================
 */
-#ifndef MISSIONPACK
+#if !defined MISSIONPACK && !defined NEOHUD
 static float CG_DrawScores( float y ) {
 	const char	*s;
 	int			s1, s2, score;
@@ -1320,7 +1355,7 @@ static float CG_DrawScores( float y ) {
 CG_DrawPowerups
 ================
 */
-#ifndef MISSIONPACK
+#if !defined MISSIONPACK && !defined NEOHUD
 static float CG_DrawPowerups( float y ) {
 	int		sorted[MAX_POWERUPS];
 	int		sortedTime[MAX_POWERUPS];
@@ -1423,7 +1458,7 @@ CG_DrawLowerRight
 
 =====================
 */
-#ifndef MISSIONPACK
+#if !defined MISSIONPACK && !defined NEOHUD
 static void CG_DrawLowerRight( void ) {
 	float	y;
 
@@ -1444,7 +1479,7 @@ static void CG_DrawLowerRight( void ) {
 CG_DrawPickupItem
 ===================
 */
-#ifndef MISSIONPACK
+#if !defined MISSIONPACK && !defined NEOHUD
 static int CG_DrawPickupItem( int y ) {
 	int		value;
 	float	*fadeColor;
@@ -1488,7 +1523,7 @@ static int CG_DrawPickupItem( int y ) {
 CG_DrawLowerLeft
 =====================
 */
-#ifndef MISSIONPACK
+#if !defined MISSIONPACK && !defined NEOHUD
 static void CG_DrawLowerLeft( void ) {
 	float	y;
 
@@ -1510,7 +1545,7 @@ static void CG_DrawLowerLeft( void ) {
 CG_DrawTeamInfo
 =================
 */
-#ifndef MISSIONPACK
+#if !defined MISSIONPACK && !defined NEOHUD
 static void CG_DrawTeamInfo( void ) {
 	int w, h;
 	int i, len;
@@ -1619,6 +1654,7 @@ static void CG_DrawPersistantPowerup( void ) {
 CG_DrawReward
 ===================
 */
+#ifndef NEOHUD
 static void CG_DrawReward( void ) { 
 	float	*color;
 	int		i, count;
@@ -1683,6 +1719,7 @@ static void CG_DrawReward( void ) {
 	}
 	trap_R_SetColor( NULL );
 }
+#endif
 
 
 /*
@@ -1692,7 +1729,7 @@ LAGOMETER
 
 ===============================================================================
 */
-
+#ifndef NEOHUD
 #define	LAG_SAMPLES		128
 
 
@@ -1705,6 +1742,7 @@ typedef struct {
 } lagometer_t;
 
 lagometer_t		lagometer;
+#endif
 
 /*
 ==============
@@ -1713,6 +1751,7 @@ CG_AddLagometerFrameInfo
 Adds the current interpolate / extrapolate bar for this frame
 ==============
 */
+#ifndef NEOHUD
 void CG_AddLagometerFrameInfo( void ) {
 	int			offset;
 
@@ -1720,7 +1759,7 @@ void CG_AddLagometerFrameInfo( void ) {
 	lagometer.frameSamples[ lagometer.frameCount & ( LAG_SAMPLES - 1) ] = offset;
 	lagometer.frameCount++;
 }
-
+#endif
 
 /*
 ==============
@@ -1732,6 +1771,7 @@ the number of snapshots that were dropped before it.
 Pass NULL for a dropped packet.
 ==============
 */
+#ifndef NEOHUD
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap ) {
 	// dropped packet
 	if ( !snap ) {
@@ -1745,7 +1785,7 @@ void CG_AddLagometerSnapshotInfo( snapshot_t *snap ) {
 	lagometer.snapshotFlags[ lagometer.snapshotCount & ( LAG_SAMPLES - 1) ] = snap->snapFlags;
 	lagometer.snapshotCount++;
 }
-
+#endif
 
 /*
 ==============
@@ -1754,6 +1794,7 @@ CG_DrawDisconnect
 Should we draw something differnet for long lag vs no packets?
 ==============
 */
+#ifndef NEOHUD
 static void CG_DrawDisconnect( void ) {
 	float		x, y;
 	int			cmdNum;
@@ -1782,8 +1823,9 @@ static void CG_DrawDisconnect( void ) {
 
 	CG_DrawPic( x, y, 48, 48, trap_R_RegisterShader( "gfx/2d/net.tga" ) );
 }
+#endif
 
-
+#ifndef NEOHUD
 #define	MAX_LAGOMETER_PING	900
 #define	MAX_LAGOMETER_RANGE	300
 
@@ -1902,6 +1944,7 @@ static void CG_DrawLagometer( void ) {
 
 	CG_DrawDisconnect();
 }
+#endif
 
 
 
@@ -1922,6 +1965,7 @@ Called for important messages that should stay in the center of the screen
 for a few moments
 ==============
 */
+#ifndef NEOHUD
 void CG_CenterPrint( const char *str, int y, int charWidth ) {
 	char	*s;
 
@@ -1940,6 +1984,7 @@ void CG_CenterPrint( const char *str, int y, int charWidth ) {
 		s++;
 	}
 }
+#endif
 
 
 /*
@@ -1947,25 +1992,31 @@ void CG_CenterPrint( const char *str, int y, int charWidth ) {
 CG_DrawCenterString
 ===================
 */
-static void CG_DrawCenterString( void ) {
+#ifndef NEOHUD
+static
+#endif
+void CG_DrawCenterString( void ) {
 	char	*start;
 	int		l;
 	int		y;
 #ifdef MISSIONPACK // bk010221 - unused else
-  int h;
+	int h;
 #endif
-	float	*color;
+	float	*fadeColor;
 
 	if ( !cg.centerPrintTime ) {
 		return;
 	}
-
-	color = CG_FadeColor( cg.centerPrintTime, 1000 * cg_centertime.value );
-	if ( !color ) {
+#ifdef NEOHUD
+	fadeColor = CG_FadeColor( cg.centerPrintTime, 1000 * cg_centertime.value, cg.centerPrintColor);
+#else
+	fadeColor = CG_FadeColor( cg.centerPrintTime, 1000 * cg_centertime.value );
+#endif
+	if ( !fadeColor ) {
 		return;
 	}
 
-	trap_R_SetColor( color );
+	trap_R_SetColor( fadeColor );
 
 	start = cg.centerPrint;
 
@@ -1989,7 +2040,7 @@ static void CG_DrawCenterString( void ) {
 		CG_Text_Paint(x, y + h, 0.5, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		y += h + 6;
 #else
-		CG_DrawString( 320, y, linebuffer, color, cg.centerPrintCharWidth, cg.centerPrintCharWidth * 1.5, 0, DS_SHADOW | DS_CENTER | DS_PROPORTIONAL );
+		CG_DrawString( 320, y, linebuffer, fadeColor, cg.centerPrintCharWidth, cg.centerPrintCharWidth * 1.5, 0, DS_SHADOW | DS_CENTER | DS_PROPORTIONAL );
 
 		y += cg.centerPrintCharWidth * 1.5;
 #endif
@@ -2048,6 +2099,7 @@ static void CG_SetCrosshairColor( void ) {
 CG_DrawCrosshair
 =================
 */
+#ifndef NEOHUD
 static void CG_DrawCrosshair( void ) {
 	float		w, h;
 	qhandle_t	hShader;
@@ -2074,7 +2126,7 @@ static void CG_DrawCrosshair( void ) {
 		CG_ColorForHealth( hcolor );
 		trap_R_SetColor( hcolor );
 	} else {
-		CG_SetCrosshairColor();
+		trap_R_SetColor( NULL );
 	}
 
 	w = h = cg_crosshairSize.value;
@@ -2103,7 +2155,7 @@ static void CG_DrawCrosshair( void ) {
 		y + cg.refdef.y + 0.5 * (cg.refdef.height - h) - cgs.screenYBias,
 		w, h, 0, 0, 1, 1, hShader );
 }
-
+#endif
 
 
 /*
@@ -2111,7 +2163,10 @@ static void CG_DrawCrosshair( void ) {
 CG_ScanForCrosshairEntity
 =================
 */
-static void CG_ScanForCrosshairEntity( void ) {
+#ifndef NEOHUD
+static
+#endif
+void CG_ScanForCrosshairEntity( void ) {
 	trace_t		trace;
 	vec3_t		start, end;
 	int			content;
@@ -2147,6 +2202,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 CG_DrawCrosshairNames
 =====================
 */
+#ifndef NEOHUD
 static void CG_DrawCrosshairNames( void ) {
 	float		*color;
 	const char	*name;
@@ -2182,7 +2238,7 @@ static void CG_DrawCrosshairNames( void ) {
 #endif
 	trap_R_SetColor( NULL );
 }
-
+#endif
 
 //==============================================================================
 
@@ -2191,6 +2247,7 @@ static void CG_DrawCrosshairNames( void ) {
 CG_DrawSpectator
 =================
 */
+#ifndef NEOHUD
 static void CG_DrawSpectator( void ) {
 	CG_DrawString( 320, cgs.screenYmax - 40 + 1, "SPECTATOR", colorWhite, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_CENTER | DS_PROPORTIONAL );
 	if ( cgs.gametype == GT_TOURNAMENT ) {
@@ -2199,13 +2256,14 @@ static void CG_DrawSpectator( void ) {
 		CG_DrawString( 320, cgs.screenYmax - 20 + 1, "press ESC and use the JOIN menu to play", colorWhite, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_CENTER | DS_PROPORTIONAL );
 	}
 }
-
+#endif
 
 /*
 =================
 CG_DrawVote
 =================
 */
+#ifndef NEOHUD
 static void CG_DrawVote( void ) {
 	char	*s;
 	int		sec;
@@ -2234,13 +2292,14 @@ static void CG_DrawVote( void ) {
 	CG_DrawString( cgs.screenXmin - 0, 58, s, colorWhite, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0, DS_PROPORTIONAL ); // DS_SHADOW?
 #endif
 }
-
+#endif
 
 /*
 =================
 CG_DrawTeamVote
 =================
 */
+#ifndef NEOHUD
 static void CG_DrawTeamVote(void) {
 	char	*s;
 	int		sec, cs_offset;
@@ -2271,9 +2330,12 @@ static void CG_DrawTeamVote(void) {
 
 	CG_DrawString( cgs.screenXmin - 0, 90, s, colorWhite, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0, DS_PROPORTIONAL ); // DF_SHADOW?
 }
+#endif
 
-
-static qboolean CG_DrawScoreboard( void ) {
+#ifndef NEOHUD
+static
+#endif
+qboolean CG_DrawScoreboard( void ) {
 #ifdef MISSIONPACK
 	static qboolean firstTime = qtrue;
 	float fade, *fadeColor;
@@ -2312,7 +2374,7 @@ static qboolean CG_DrawScoreboard( void ) {
 			return qfalse;
 		}
 		fade = *fadeColor;
-	}																					  
+	}
 
 
 	if (menuScoreboard == NULL) {
@@ -2348,8 +2410,10 @@ static qboolean CG_DrawScoreboard( void ) {
 CG_DrawIntermission
 =================
 */
-static void CG_DrawIntermission( void ) {
-//	int key;
+#ifndef NEOHUD
+static
+#endif
+void CG_DrawIntermission( void ) {
 #ifdef MISSIONPACK
 	//if (cg_singlePlayer.integer) {
 	//	CG_DrawCenterString();
@@ -2362,7 +2426,11 @@ static void CG_DrawIntermission( void ) {
 	}
 #endif
 	cg.scoreFadeTime = cg.time;
+#ifdef NEOHUD
+	CG_DrawScoreboard();
+#else
 	cg.scoreBoardShowing = CG_DrawScoreboard();
+#endif
 }
 
 
@@ -2371,6 +2439,7 @@ static void CG_DrawIntermission( void ) {
 CG_DrawFollow
 =================
 */
+#ifndef NEOHUD
 static qboolean CG_DrawFollow( void ) {
 
 	const char	*name;
@@ -2387,7 +2456,7 @@ static qboolean CG_DrawFollow( void ) {
 
 	return qtrue;
 }
-
+#endif
 
 
 /*
@@ -2395,6 +2464,7 @@ static qboolean CG_DrawFollow( void ) {
 CG_DrawAmmoWarning
 =================
 */
+#ifndef NEOHUD
 static void CG_DrawAmmoWarning( void ) {
 	const char	*s;
 
@@ -2414,6 +2484,7 @@ static void CG_DrawAmmoWarning( void ) {
 
 	CG_DrawString( 320, 64, s, colorWhite, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_PROPORTIONAL | DS_CENTER | DS_SHADOW );
 }
+#endif
 
 
 #ifdef MISSIONPACK
@@ -2459,6 +2530,7 @@ static void CG_DrawProxWarning( void ) {
 CG_DrawWarmup
 =================
 */
+#ifndef NEOHUD
 static void CG_DrawWarmup( void ) {
 	int			w;
 	int			i;
@@ -2579,6 +2651,7 @@ static void CG_DrawWarmup( void ) {
 	CG_DrawString( 320, 70, s, colorWhite, cw, cw * 1.5, 0, DS_CENTER | DS_SHADOW | DS_PROPORTIONAL );
 #endif
 }
+#endif
 
 
 //==================================================================================
@@ -2606,9 +2679,10 @@ void CG_DrawTimedMenus( void ) {
 CG_Draw2D
 =================
 */
+#ifndef NEOHUD
 static void CG_Draw2D( stereoFrame_t stereoFrame )
 {
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 	if (cgs.orderPending && cg.time > cgs.orderTime) {
 		CG_CheckOrderPending();
 	}
@@ -2712,6 +2786,7 @@ static void CG_Draw2D( stereoFrame_t stereoFrame )
 		trap_R_DrawStretchPic( x, y, w, h, 0, 0, 1, 1, cgs.media.cursor );
 	}
 }
+#endif
 
 
 static void CG_DrawTourneyScoreboard( void ) {
@@ -2721,7 +2796,7 @@ static void CG_DrawTourneyScoreboard( void ) {
 #endif
 }
 
-
+#ifndef NEOHUD
 static void CG_CalculatePing( void ) {
 	int count, i, v;
 
@@ -2741,10 +2816,9 @@ static void CG_CalculatePing( void ) {
 		cg.meanPing /= count;
 	}
 }
-
+#endif
 
 static void CG_WarmupEvents( void ) {
-
 	int	count;
 
 	if ( !cg.warmup )
@@ -2779,7 +2853,15 @@ static void CG_WarmupEvents( void ) {
 				trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 				cg.warmupFightSound = cg.time + 750;
 			}
+#ifdef NEOHUD
+			{
+			item_t itm;
+			itm = dyn_itemArray[WarmFightMsg_idx];
+			CG_CenterPrint( "FIGHT!", itm.rect.y, itm.fontsize.w, itm.forecolor.color );
+			}
+#else
 			CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
+#endif			
 			break;
 
 		case 1:
@@ -2943,5 +3025,5 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	CG_WarmupEvents();
 
 	// draw status bar and other floating elements
- 	CG_Draw2D( stereoView );
+	CG_Draw2D( stereoView );
 }

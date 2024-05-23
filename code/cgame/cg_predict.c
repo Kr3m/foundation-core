@@ -504,12 +504,12 @@ static void CG_TouchItem( centity_t *cent ) {
 	}
 
 	// never pick an item up twice in a prediction
-	if ( cent->delaySpawn > cg.time ) { 
+	if ( cent->delaySpawn > cg.time ) {
 		return;
 	}
 
 	if ( !BG_CanItemBeGrabbed( cgs.gametype, &cent->currentState, &cg.predictedPlayerState ) ) {
-		return;	// can't hold it
+		return; // can't hold it
 	}
 
 	item = &bg_itemlist[ cent->currentState.modelindex ];

@@ -200,7 +200,7 @@ void CG_DrawInformation( void ) {
 
 	// don't print server lines if playing a local game
 	//trap_Cvar_VariableStringBuffer( "sv_running", buf, sizeof( buf ) );
-	//if ( !atoi( buf ) ) 
+	//if ( !atoi( buf ) )
 	{
 		// server hostname
 		Q_strncpyz( buf, Info_ValueForKey( info, "sv_hostname" ), sizeof( buf ) );

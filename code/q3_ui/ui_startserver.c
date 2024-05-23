@@ -98,7 +98,7 @@ static const char *gametype_items[] = {
 };
 
 static int gametype_remap[] = { GT_FFA, GT_TOURNAMENT, GT_TEAM, GT_CTF };
-static int gametype_remap2[] = {0, 1, 0, 2, 3};
+static int gametype_remap2[] = { 0, 1, 0, 2, 3 };
 
 // use ui_servers2.c definition
 extern const char* punkbuster_items[];

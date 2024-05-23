@@ -50,7 +50,7 @@ void SP_info_player_deathmatch( gentity_t *ent ) {
 }
 
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
-equivelant to info_player_deathmatch
+equivalent to info_player_deathmatch
 */
 void SP_info_player_start(gentity_t *ent) {
 	ent->classname = "info_player_deathmatch";
@@ -304,7 +304,7 @@ void InitBodyQue (void) {
 =============
 BodySink
 
-After sitting around for five seconds, fall into the ground and dissapear
+After sitting around for five seconds, fall into the ground and disappear
 =============
 */
 void BodySink( gentity_t *ent ) {
@@ -681,7 +681,7 @@ qboolean ClientUserinfoChanged( int clientNum ) {
 #endif
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 	if (g_gametype.integer >= GT_TEAM) {
 		client->pers.teamInfo = qtrue;
 	} else {

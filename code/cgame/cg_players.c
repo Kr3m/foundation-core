@@ -687,7 +687,7 @@ static qboolean CG_IsKnownModel( const char *modelName ) {
 
 /*
 ====================
-CG_ColorFromString
+CG_ColorFromChar
 ====================
 */
 static void CG_ColorFromChar( char v, vec3_t color ) {
@@ -1679,7 +1679,7 @@ static void CG_AddPainTwitch( centity_t *cent, vec3_t torsoAngles ) {
 ===============
 CG_PlayerAngles
 
-Handles seperate torso motion
+Handles separate torso motion
 
   legs pivot based on direction of movement
 
@@ -2606,7 +2606,7 @@ void CG_Player( centity_t *cent ) {
 
 	// get the rotation information
 	CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );
-	
+
 	// get the animation state (after rotation, to allow feet shuffle)
 	CG_PlayerAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp,
 		 &torso.oldframe, &torso.frame, &torso.backlerp );
@@ -2711,7 +2711,7 @@ void CG_Player( centity_t *cent ) {
 			angle = ((cg.time / 4) & 255) * (M_PI * 2) / 255;
 			dir[2] = 15 + sin(angle) * 8;
 			VectorAdd(torso.origin, dir, skull.origin);
-			
+
 			dir[2] = 0;
 			VectorCopy(dir, skull.axis[1]);
 			VectorNormalize(skull.axis[1]);
@@ -2789,7 +2789,7 @@ void CG_Player( centity_t *cent ) {
 			dir[1] = cos(angle) * 20;
 			dir[2] = 0;
 			VectorAdd(torso.origin, dir, skull.origin);
-			
+
 			VectorCopy(dir, skull.axis[1]);
 			VectorNormalize(skull.axis[1]);
 			VectorSet(skull.axis[2], 0, 0, 1);
@@ -2923,7 +2923,7 @@ void CG_Player( centity_t *cent ) {
 		head.shaderRGBA[2] = ci->headColor[2] * 255;
 	}
 	head.shaderRGBA[3] = 255;
-	
+
 	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team );
 
 #ifdef MISSIONPACK

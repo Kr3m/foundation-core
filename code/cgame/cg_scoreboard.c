@@ -75,11 +75,184 @@ static qboolean localClient; // true if local client has been displayed
 
 /*
 =================
-CG_DrawScoreboard
+CG_DrawClientScore
 =================
 */
+#ifdef NEOHUD
+// TODO use hud info
 static void CG_DrawClientScore( int y, score_t *score, float *color, float fade, qboolean largeFormat ) {
-	char	string[ 64 ];
+	char	string[64];
+	vec3_t	headAngles;
+	clientInfo_t	*ci;
+	int iconx, headx;
+	vec4_t fadeColor;
+	int icony, iconw, iconh;
+	int heady, headw, headh;
+	//item_t itm;
+	int iconSizeW = ICON_SIZE;//48;
+	int iconSizeH = ICON_SIZE;
+
+	if ( score->client < 0 || score->client >= cgs.maxclients ) {
+		Com_Printf( "Bad score->client: %i\n", score->client );
+		return;
+	}
+
+	ci = &cgs.clientinfo[score->client];
+	if ( !ci->infoValid )
+		return;
+
+	headx = SB_HEAD_X + (SB_RATING_WIDTH / 2);
+	iconx = SB_BOTICON_X + (SB_RATING_WIDTH / 2);
+
+	//itm = itemArray[ScoreboardIcoHead_idx];
+
+	if ( largeFormat ) {
+		heady = y - (iconSizeH - BIGCHAR_HEIGHT) / 2;
+		headw = iconSizeW;
+		headh = iconSizeH;
+
+		icony = y - (32 - BIGCHAR_HEIGHT) / 2;
+		iconw = 32;
+		iconh = 32;
+	}
+	else {
+		heady = y;
+		headw = 16;
+		headh = 16;
+
+		iconw = 16;
+		iconh = 16;
+	}
+
+	trap_R_SetColor( NULL );
+
+	// draw the handicap or bot skill marker (unless player has flag)
+	if ( ci->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
+		CG_DrawFlagModel(iconx, icony, iconw, iconh, TEAM_FREE, qfalse );
+	}
+	else if ( ci->powerups & (1 << PW_REDFLAG) ) {
+		CG_DrawFlagModel(iconx, icony, iconw, iconh, TEAM_RED, qfalse );
+	}
+	else if ( ci->powerups & (1 << PW_BLUEFLAG) ) {
+		CG_DrawFlagModel(iconx, icony, iconw, iconh, TEAM_BLUE, qfalse );
+	}
+	else {
+		if ( ci->botSkill > 0 && ci->botSkill <= 5 ) {
+			if ( cg_drawIcons.integer ) {
+				CG_DrawPic( iconx, icony, iconw, iconh, cgs.media.botSkillShaders[ci->botSkill - 1] );
+			}
+		} else if ( ci->handicap < 100 ) {
+			BG_sprintf( string, "%i", ci->handicap );
+			if ( cgs.gametype == GT_TOURNAMENT )
+				CG_DrawString( iconx, y - SMALLCHAR_HEIGHT/2, string, color, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0, DS_FORCE_COLOR );
+			else
+				CG_DrawString( iconx, y, string, color, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0, DS_FORCE_COLOR );
+		}
+
+		// draw the wins / losses
+		if ( cgs.gametype == GT_TOURNAMENT ) {
+			BG_sprintf( string, "%i/%i", ci->wins, ci->losses );
+			if ( ci->handicap < 100 && !ci->botSkill ) {
+				CG_DrawString( iconx, y + SMALLCHAR_HEIGHT/2, string, color, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0, DS_FORCE_COLOR );
+			} else {
+				CG_DrawString( iconx, y, string, color, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0, DS_FORCE_COLOR );
+			}
+		}
+	}
+
+	// draw the face
+	VectorClear( headAngles );
+	headAngles[YAW] = 180;
+	if( largeFormat ) {
+		CG_DrawHead(headx, heady, headw, headh, score->client, headAngles, qfalse);
+	}
+	else {
+		CG_DrawHead( headx, y, 16, 16, score->client, headAngles, qfalse);
+	}
+
+#ifdef MISSIONPACK
+	// draw the team task
+	if ( ci->teamTask != TEAMTASK_NONE ) {
+		if ( ci->teamTask == TEAMTASK_OFFENSE ) {
+			CG_DrawPic( headx + 48, y, 16, 16, cgs.media.assaultShader );
+		}
+		else if ( ci->teamTask == TEAMTASK_DEFENSE ) {
+			CG_DrawPic( headx + 48, y, 16, 16, cgs.media.defendShader );
+		}
+	}
+#endif
+	// draw the score line
+	if ( score->ping == -1 ) {
+		BG_sprintf( string, " connecting" );
+	} else if ( ci->team == TEAM_SPECTATOR ) {
+		BG_sprintf( string, " SPECT %3i %4i", score->ping, score->time );
+	} else {
+		BG_sprintf( string, "%5i %4i %4i", score->score, score->ping, score->time );
+	}
+
+	// highlight your position
+	if ( score->client == cg.snap->ps.clientNum ) {
+		float	hcolor[4];
+		int		rank;
+
+		localClient = qtrue;
+
+		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR 
+			|| cgs.gametype >= GT_TEAM ) {
+			rank = -1;
+		} else {
+			rank = cg.snap->ps.persistant[PERS_RANK] & ~RANK_TIED_FLAG;
+		}
+		if ( rank == 0 ) {
+			hcolor[0] = 0;
+			hcolor[1] = 0;
+			hcolor[2] = 0.7f;
+		} else if ( rank == 1 ) {
+			hcolor[0] = 0.7f;
+			hcolor[1] = 0;
+			hcolor[2] = 0;
+		} else if ( rank == 2 ) {
+			hcolor[0] = 0.7f;
+			hcolor[1] = 0.7f;
+			hcolor[2] = 0;
+		} else {
+			hcolor[0] = 0.7f;
+			hcolor[1] = 0.7f;
+			hcolor[2] = 0.7f;
+		}
+
+		hcolor[3] = fade * 0.7;
+		CG_FillRect( SB_SCORELINE_X + BIGCHAR_WIDTH + (SB_RATING_WIDTH / 2), y, 
+			640 - SB_SCORELINE_X - BIGCHAR_WIDTH - (SB_RATING_WIDTH/2),
+			BIGCHAR_HEIGHT+1, hcolor );
+	}
+
+	VectorSet( fadeColor, 1, 1, 1 );
+	fadeColor[3] = fade;
+	// score
+	CG_DrawString( SB_SCORELINE_X + (SB_RATING_WIDTH / 2), y, string, fadeColor, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW );
+	// name
+	CG_DrawString( SB_SCORELINE_X + (SB_RATING_WIDTH / 2) + BIGCHAR_WIDTH*16, y, ci->name, fadeColor, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_PROPORTIONAL );
+
+	// add the "ready" marker for intermission exiting
+	if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << score->client ) ) {
+		CG_DrawString( iconx, y, "READY", color, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_FORCE_COLOR );
+	}
+
+	// set bounds for scoreboard clicks
+	score->minx = SB_SCORELINE_X;
+	score->maxx = SCREEN_WIDTH - 8;
+	score->miny = y;
+	score->maxy = y + BIGCHAR_HEIGHT;
+	if ( largeFormat )
+	{
+		score->miny -= ( iconSizeH - BIGCHAR_HEIGHT ) / 2;
+		score->maxy += ( iconSizeW - BIGCHAR_HEIGHT ) / 2;
+	}
+}
+#else
+static void CG_DrawClientScore( int y, score_t *score, float *color, float fade, qboolean largeFormat ) {
+	char	string[64];
 	vec3_t	headAngles;
 	clientInfo_t	*ci;
 	int iconx, headx;
@@ -89,7 +262,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 		Com_Printf( "Bad score->client: %i\n", score->client );
 		return;
 	}
-	
+
 	ci = &cgs.clientinfo[score->client];
 	if ( !ci->infoValid )
 		return;
@@ -142,7 +315,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 		// draw the wins / losses
 		if ( cgs.gametype == GT_TOURNAMENT ) {
 			BG_sprintf( string, "%i/%i", ci->wins, ci->losses );
-			if( ci->handicap < 100 && !ci->botSkill ) {
+			if ( ci->handicap < 100 && !ci->botSkill ) {
 				CG_DrawString( iconx, y + SMALLCHAR_HEIGHT/2, string, color, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0, DS_FORCE_COLOR );
 			} else {
 				CG_DrawString( iconx, y, string, color, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0, DS_FORCE_COLOR );
@@ -218,7 +391,8 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 			BIGCHAR_HEIGHT+1, hcolor );
 	}
 
-	VectorSet( c, 1, 1, 1 ); c[3] = fade;
+	VectorSet( c, 1, 1, 1 );
+	c[3] = fade;
 	// score
 	CG_DrawString( SB_SCORELINE_X + (SB_RATING_WIDTH / 2), y, string, c, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW );
 	// name
@@ -240,7 +414,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 		score->maxy += ( ICON_SIZE - BIGCHAR_HEIGHT ) / 2;
 	}
 }
-
+#endif
 
 /*
 =================
@@ -319,12 +493,12 @@ Draw the normal in-game scoreboard
 */
 qboolean CG_DrawOldScoreboard( void ) {
 	int		y, i, n1, n2;
-	float	fade;
-	float	*fadeColor;
-	char	*s;
-	int maxClients;
-	int lineHeight;
-	int topBorderSize, bottomBorderSize;
+	float		fade;
+	float		*fadeColor;
+	char		*s;
+	int		maxClients;
+	int		lineHeight;
+	int		topBorderSize, bottomBorderSize;
 
 	// don't draw anything if the menu or console is up
 	if ( cg_paused.integer ) {
@@ -347,8 +521,11 @@ qboolean CG_DrawOldScoreboard( void ) {
 		fade = 1.0;
 		fadeColor = colorWhite;
 	} else {
+#ifdef NEOHUD
+		fadeColor = CG_FadeColor( cg.scoreFadeTime, FADE_TIME, colorWhite );
+#else
 		fadeColor = CG_FadeColor( cg.scoreFadeTime, FADE_TIME );
-		
+#endif
 		if ( !fadeColor ) {
 			// next time scoreboard comes up, don't print killer
 			cg.deferredPlayerLoading = 0;
@@ -478,11 +655,16 @@ Draw the oversize scoreboard for tournements
 */
 void CG_DrawOldTourneyScoreboard( void ) {
 	const char		*s;
-	vec4_t			color;
+	vec4_t			bgColor;
+	float			*color;
 	int				min, sec;
 	clientInfo_t	*ci;
 	int				y;
 	int				i;
+	int				charW, charH;
+
+	charW = GIANT_WIDTH;
+	charH = GIANT_HEIGHT;
 
 	// request more scores regularly
 	if ( cg.scoresRequestTime + 2000 < cg.time ) {
@@ -491,9 +673,9 @@ void CG_DrawOldTourneyScoreboard( void ) {
 	}
 
 	// draw the dialog background
-	color[0] = color[1] = color[2] = 0.2f;
-	color[3] = 1;
-	CG_FillScreen( color );
+	bgColor[0] = bgColor[1] = bgColor[2] = 0.2f;
+	bgColor[3] = 1;
+	CG_FillScreen( bgColor );
 
 	// print the mesage of the day
 	s = CG_ConfigString( CS_MOTD );
@@ -501,8 +683,10 @@ void CG_DrawOldTourneyScoreboard( void ) {
 		s = "Scoreboard";
 	}
 
+	// Get color from HUD file, or default color
+	color = colorWhite;// CG_HUDColor(itm, colorWhite);
 	// print optional title
-	CG_DrawString( 320, 8, s, colorWhite, GIANT_WIDTH, GIANT_HEIGHT, 0, DS_SHADOW | DS_FORCE_COLOR | DS_CENTER | DS_PROPORTIONAL );
+	CG_DrawString( 320, 8, s, color, charW, charH, 0, DS_SHADOW | DS_FORCE_COLOR | DS_CENTER | DS_PROPORTIONAL );
 
 	// print server time
 	sec = cg.time / 1000;
@@ -511,7 +695,7 @@ void CG_DrawOldTourneyScoreboard( void ) {
 
 	s = va( "%i:%02i", min, sec );
 
-	CG_DrawString( 320, 64, s, colorWhite, GIANT_WIDTH, GIANT_HEIGHT, 0, DS_SHADOW | DS_FORCE_COLOR | DS_CENTER | DS_PROPORTIONAL );
+	CG_DrawString( 320, 64, s, color, charW, charH, 0, DS_SHADOW | DS_FORCE_COLOR | DS_CENTER | DS_PROPORTIONAL );
 
 	// print the two scores
 
@@ -520,15 +704,15 @@ void CG_DrawOldTourneyScoreboard( void ) {
 		//
 		// teamplay scoreboard
 		//
-		CG_DrawString( 8, y, "Red Team", colorWhite, GIANT_WIDTH, GIANT_HEIGHT, 0, DS_SHADOW );
+		CG_DrawString( 8, y, "Red Team", color, charW, charH, 0, DS_SHADOW );
 		s = va( "%i", cg.teamScores[0] );
-		CG_DrawString( 632, y, s, colorWhite, GIANT_WIDTH, GIANT_HEIGHT, 0, DS_SHADOW | DS_RIGHT );
+		CG_DrawString( 632, y, s, color, charW, charH, 0, DS_SHADOW | DS_RIGHT );
 		
 		y += 64;
 
-		CG_DrawString( 8, y, "Blue Team", colorWhite, GIANT_WIDTH, GIANT_HEIGHT, 0, DS_SHADOW );
+		CG_DrawString( 8, y, "Blue Team", color, charW, charH, 0, DS_SHADOW );
 		s = va( "%i", cg.teamScores[1] );
-		CG_DrawString( 632, y, s, colorWhite, GIANT_WIDTH, GIANT_HEIGHT, 0, DS_SHADOW | DS_RIGHT );
+		CG_DrawString( 632, y, s, color, charW, charH, 0, DS_SHADOW | DS_RIGHT );
 
 	} else {
 		//
@@ -543,9 +727,9 @@ void CG_DrawOldTourneyScoreboard( void ) {
 				continue;
 			}
 
-			CG_DrawString( 8, y, ci->name, colorWhite, GIANT_WIDTH, GIANT_HEIGHT, 0, DS_SHADOW | DS_FORCE_COLOR | DS_PROPORTIONAL );
+			CG_DrawString( 8, y, ci->name, color, charW, charH, 0, DS_SHADOW | DS_FORCE_COLOR | DS_PROPORTIONAL );
 			s = va( "%i", ci->score );
-			CG_DrawString( 632, y, s, colorWhite, GIANT_WIDTH, GIANT_HEIGHT, 0, DS_SHADOW | DS_RIGHT );
+			CG_DrawString( 632, y, s, color, charW, charH, 0, DS_SHADOW | DS_RIGHT );
 			y += 64;
 		}
 	}

@@ -20,11 +20,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
+#ifndef __CG_LOCAL_H__
+#define __CG_LOCAL_H__
+
 #include "../game/q_shared.h"
 #include "tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
 
+#define NEOHUD
+
+#ifdef NEOHUD
+#include "cg_parsehud.h"// new HUD stuff
+#endif
 
 // The entire cgame module is unloaded and reloaded on each level change,
 // so there is NO persistant data between levels on the client side.
@@ -38,47 +46,53 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	POWERUP_BLINKS		5
 
 #define	POWERUP_BLINK_TIME	1000
-#define	FADE_TIME			200
-#define	PULSE_TIME			200
+#define	FADE_TIME		200
+#define	PULSE_TIME		200
 #define	DAMAGE_DEFLECT_TIME	100
 #define	DAMAGE_RETURN_TIME	400
-#define DAMAGE_TIME			500
+#define DAMAGE_TIME		500
 #define	LAND_DEFLECT_TIME	150
 #define	LAND_RETURN_TIME	300
-#define	STEP_TIME			200
-#define	DUCK_TIME			100
+#define	STEP_TIME		200
+#define	DUCK_TIME		100
 #define	PAIN_TWITCH_TIME	200
+#ifndef NEOHUD
 #define	WEAPON_SELECT_TIME	1400
+#endif
 #define	ITEM_SCALEUP_TIME	1000
-#define	ZOOM_TIME			150
+#define	ZOOM_TIME		150
 #define	ITEM_BLOB_TIME		200
 #define	MUZZLE_FLASH_TIME	20
-#define	SINK_TIME			1000		// time for fragments to sink into ground before going away
+#define	SINK_TIME		1000		// time for fragments to sink into ground before going away
+#ifndef NEOHUD
 #define	ATTACKER_HEAD_TIME	10000
-#define	REWARD_TIME			3000
+#define	REWARD_TIME		3000
 
-#define	PULSE_SCALE			1.5			// amount to scale up the icons when activating
-
+#define	PULSE_SCALE		1.5			// amount to scale up the icons when activating
+#endif
 #define	MAX_STEP_CHANGE		32
 
 #define	MAX_VERTS_ON_POLY	10
 #define	MAX_MARK_POLYS		256
 
-#define STAT_MINUS			10	// num frame for '-' stats digit
+#define STAT_MINUS		10	// num frame for '-' stats digit
 
-#define	ICON_SIZE			48
-#define	CHAR_WIDTH			32
-#define	CHAR_HEIGHT			48
+#define	ICON_SIZE		48 // still needed in CG_DrawClientScore()
+
+#ifndef NEOHUD
+#define	CHAR_WIDTH		32
+#define	CHAR_HEIGHT		48
 #define	TEXT_ICON_SPACE		4
 
 #define PICKUP_ICON_SIZE	32
 #define PICKUP_TEXT_SIZE	12
+#endif
 
 #define	TEAMCHAT_WIDTH		80
 #define TEAMCHAT_HEIGHT		8
 
 // very large characters
-#define	GIANT_WIDTH			32
+#define	GIANT_WIDTH		32 // still needed in CG_DrawClientScore()
 #define	GIANT_HEIGHT		48
 
 #define	NUM_CROSSHAIRS		10
@@ -186,7 +200,7 @@ typedef struct {
 
 
 
-// centity_t have a direct corespondence with gentity_t in the game, but
+// centity_t have a direct correspondence with gentity_t in the game, but
 // only the entityState_t is directly communicated to the cgame
 typedef struct centity_s {
 	entityState_t	currentState;	// from cg.frame
@@ -227,7 +241,7 @@ typedef struct centity_s {
 //======================================================================
 
 // local entities are created as a result of events or predicted actions,
-// and live independantly from all server transmitted entities
+// and live independently from all server transmitted entities
 
 typedef struct markPoly_s {
 	struct markPoly_s	*prevMark, *nextMark;
@@ -499,7 +513,7 @@ typedef struct {
 	qboolean	loading;			// don't defer players at initial startup
 	qboolean	intermissionStarted;	// don't play voice rewards, because game will end shortly
 
-	// there are only one or two snapshot_t that are relevent at a time
+	// there are only one or two snapshot_t that are relevant at a time
 	int			latestSnapshotNum;	// the number of snapshots the client system has received
 	int			latestSnapshotTime;	// the time from latestSnapshotNum, so we don't need to read the snapshot yet
 
@@ -525,7 +539,7 @@ typedef struct {
 
 	qboolean	mapRestart;			// set on a map restart to set back the weapon
 
-	qboolean	renderingThirdPerson;		// during deaths, chasecams, etc
+	qboolean	renderingThirdPerson;	// during deaths, chasecams, etc
 
 	// prediction state
 	qboolean	hyperspace;				// true if prediction has hit a trigger_teleport
@@ -569,24 +583,24 @@ typedef struct {
 	char		infoScreenText[MAX_STRING_CHARS];
 
 	// scoreboard
-	int			scoresRequestTime;
-	int			numScores;
-	int			selectedScore;
-	int			teamScores[2];
+	int		scoresRequestTime;
+	int		numScores;
+	int		selectedScore;
+	int		teamScores[2];
 	score_t		scores[MAX_CLIENTS];
 	qboolean	showScores;
 	qboolean	scoreBoardShowing;
-	int			scoreFadeTime;
+	int		scoreFadeTime;
 	char		killerName[MAX_NAME_LENGTH+32];
-	int			killerTime;
-	char			spectatorList[MAX_STRING_CHARS];		// list of names
-	int				spectatorLen;												// length of list
-	float			spectatorWidth;											// width in device units
-	int				spectatorTime;											// next time to offset
-	int				spectatorPaintX;										// current paint x
-	int				spectatorPaintX2;										// current paint x
-	int				spectatorOffset;										// current offset from start
-	int				spectatorPaintLen; 									// current offset from start
+	int		killerTime;
+	char		spectatorList[MAX_STRING_CHARS];		// list of names
+	int		spectatorLen;							// length of list
+	float		spectatorWidth;							// width in device units
+	int		spectatorTime;							// next time to offset
+	int		spectatorPaintX;						// current paint x
+	int		spectatorPaintX2;						// current paint x
+	int		spectatorOffset;						// current offset from start
+	int		spectatorPaintLen; 						// current offset from start
 
 #ifdef MISSIONPACK
 	// skull trails
@@ -594,52 +608,55 @@ typedef struct {
 #endif
 
 	// centerprinting
-	int			centerPrintTime;
-	int			centerPrintCharWidth;
-	int			centerPrintY;
+	int		centerPrintTime;
+	int		centerPrintCharWidth;
+	int		centerPrintY;
 	char		centerPrint[1024];
-	int			centerPrintLines;
+	int		centerPrintLines;
+#ifdef NEOHUD
+	vec4_t		centerPrintColor;
+#endif
 
 	// low ammo warning state
-	int			lowAmmoWarning;		// 1 = low, 2 = empty
+	int		lowAmmoWarning;		// 1 = low, 2 = empty
 
 	// kill timers for carnage reward
-	int			lastKillTime;
+	int		lastKillTime;
 
 	// crosshair client ID
-	int			crosshairClientNum;
-	int			crosshairClientTime;
+	int		crosshairClientNum;
+	int		crosshairClientTime;
 
 	// powerup active flashing
-	int			powerupActive;
-	int			powerupTime;
+	int		powerupActive;
+	int		powerupTime;
 
 	// attacking player
 	char		attackerName[MAX_NAME_LENGTH];
-	int			attackerClientNum;
-	int			attackerTime;
+	int		attackerClientNum;
+	int		attackerTime;
 
-	int			voiceTime;
+	int		voiceTime;
 
 	// reward medals
-	int			rewardStack;
-	int			rewardTime;
-	int			rewardCount[MAX_REWARDSTACK];
+	int		rewardStack;
+	int		rewardTime;
+	int		rewardCount[MAX_REWARDSTACK];
 	qhandle_t	rewardShader[MAX_REWARDSTACK];
 	qhandle_t	rewardSound[MAX_REWARDSTACK];
 
 	// sound buffer mainly for announcer sounds
-	int			soundBufferIn;
-	int			soundBufferOut;
-	int			soundTime;
+	int		soundBufferIn;
+	int		soundBufferOut;
+	int		soundTime;
 	qhandle_t	soundBuffer[MAX_SOUNDBUFFER];
 	qhandle_t	soundPlaying;
 
 	// for voice chat buffer
-#ifdef MISSIONPACK
-	int			voiceChatTime;
-	int			voiceChatBufferIn;
-	int			voiceChatBufferOut;
+#if defined MISSIONPACK || defined NEOHUD
+	int		voiceChatTime;
+	int		voiceChatBufferIn;
+	int		voiceChatBufferOut;
 #endif
 
 	// warmup countdown
@@ -807,6 +824,10 @@ typedef struct {
 	qhandle_t	blueProxMine;
 #endif
 
+#ifdef NEOHUD
+	// allow use of gametype icons (Quake Live)
+	qhandle_t	gameTypeShader[GT_MAX_GAME_TYPE];
+#endif
 	qhandle_t	numberShaders[11];
 
 	qhandle_t	shadowMarkShader;
@@ -1015,7 +1036,8 @@ typedef struct {
 	sfxHandle_t	countFightSound;
 	sfxHandle_t	countPrepareSound;
 
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
+	qhandle_t menuscreen2;//team arena hud background
 	// new stuff
 	qhandle_t patrolShader;
 	qhandle_t assaultShader;
@@ -1026,6 +1048,8 @@ typedef struct {
 	qhandle_t retrieveShader;
 	qhandle_t escortShader;
 	qhandle_t flagShaders[3];
+#endif
+#ifdef MISSIONPACK
 	sfxHandle_t	countPrepareTeamSound;
 
 	sfxHandle_t ammoregenSound;
@@ -1104,7 +1128,7 @@ typedef struct {
 	int				redflag, blueflag;		// flag status from configstrings
 	int				flagStatus;
 
-	qboolean  newHud;
+	qboolean  		newHud;
 
 	//
 	// locally derived information from gamestate
@@ -1132,7 +1156,9 @@ typedef struct {
 	qboolean sizingHud;
 	void *capturedItem;
 	qhandle_t activeCursor;
+#endif
 
+#if defined MISSIONPACK || defined NEOHUD
 	// orders
 	int currentOrder;
 	qboolean orderPending;
@@ -1197,7 +1223,7 @@ void CG_UpdateCvars( void );
 
 int CG_CrosshairPlayer( void );
 int CG_LastAttacker( void );
-void CG_LoadMenus(const char *menuFile);
+void CG_LoadMenus( const char *menuFile );
 void CG_KeyEvent( int key, qboolean down );
 void CG_MouseEvent( int x, int y );
 void CG_EventHandling( cgame_event_t type );
@@ -1233,15 +1259,22 @@ void CG_AdjustFrom640( float *x, float *y, float *w, float *h );
 void CG_FillRect( float x, float y, float width, float height, const float *color );
 void CG_FillScreen( const float *color );
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
+#ifdef NEOHUD
+void CG_DrawGradientPic( item_t *itm, float x, float y, float width, float height, float s1, float t1, float s2, float t2, qhandle_t hShader );
+#endif
 
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars );
 
 int CG_DrawStrlen( const char *str );
 
+#ifdef NEOHUD
+float *CG_FadeColor( int startMsec, int totalMsec, vec4_t color );
+float *CG_FadeColorTime( int startMsec, int totalMsec, int fadeMsec, vec4_t color);
+#else
 float *CG_FadeColor( int startMsec, int totalMsec );
 float *CG_FadeColorTime( int startMsec, int totalMsec, int fadeMsec );
-
+#endif
 const float *CG_TeamColor( team_t team );
 void CG_TileClear( void );
 void CG_ColorForHealth( vec4_t hcolor );
@@ -1254,6 +1287,7 @@ void CG_DrawTopBottom(float x, float y, float w, float h, float size);
 
 #define USE_NEW_FONT_RENDERER
 
+#ifndef NEOHUD
 // flags for CG_DrawString
 enum {
 	DS_SHADOW      = 0x1,
@@ -1262,6 +1296,8 @@ enum {
 	DS_CENTER = 0x8,	// alignment
 	DS_RIGHT  = 0x10	// alignment
 };
+#endif
+
 void CG_DrawString( float x, float y, const char *s, const vec4_t color, float charWidth, float charHeight, int maxChars, int flags );
 #ifdef USE_NEW_FONT_RENDERER
 void CG_LoadFonts( void );
@@ -1280,34 +1316,45 @@ extern  char teamChat2[256];
 
 void CG_AddLagometerFrameInfo( void );
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap );
+#ifdef NEOHUD
+void CG_CenterPrint( const char *str, int y, int charWidth, vec4_t color );
+void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t headAngles, qboolean force3D );
+#else
 void CG_CenterPrint( const char *str, int y, int charWidth );
 void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t headAngles );
+#endif
 void CG_DrawActive( stereoFrame_t stereoView );
 void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean force2D );
 void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team );
+void CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style );
+int CG_Text_Width( const char *text, float scale, int limit );
+int CG_Text_Height( const char *text, float scale, int limit );
+void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles );
+
+#if defined MISSIONPACK || defined NEOHUD
+void CG_SelectPrevPlayer(void);
+void CG_SelectNextPlayer(void);
+qboolean CG_YourTeamHasFlag(void);
+qboolean CG_OtherTeamHasFlag(void);
+void CG_CheckOrderPending(void);
+void CG_ShowResponseHead(void);
+#endif
+
+#ifdef MISSIONPACK
 void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
-void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style);
-int CG_Text_Width(const char *text, float scale, int limit);
-int CG_Text_Height(const char *text, float scale, int limit);
-void CG_SelectPrevPlayer( void );
-void CG_SelectNextPlayer( void );
 float CG_GetValue(int ownerDraw);
 qboolean CG_OwnerDrawVisible(int flags);
 void CG_RunMenuScript(char **args);
-void CG_ShowResponseHead( void );
+//void CG_ShowResponseHead( void );
 void CG_SetPrintString(int type, const char *p);
 void CG_InitTeamChat( void );
 void CG_GetTeamColor(vec4_t *color);
 const char *CG_GetGameStatusText( void );
 const char *CG_GetKillerText( void );
-void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles );
-void CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader);
-void CG_CheckOrderPending( void );
+void CG_Text_PaintChar( float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader );
 const char *CG_GameTypeString( void );
-qboolean CG_YourTeamHasFlag( void );
-qboolean CG_OtherTeamHasFlag( void );
 qhandle_t CG_StatusHandle(int task);
-
+#endif
 void CG_ForceModelChange( void );
 void CG_TrackClientTeamChange( void );
 
@@ -1376,8 +1423,12 @@ void CG_RailTrail( const clientInfo_t *ci, const vec3_t start, const vec3_t end 
 void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
 void CG_AddViewWeapon (playerState_t *ps);
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team );
+#ifdef NEOHUD
+void CG_DrawWeaponSelect_H( item_t *itm );
+void CG_DrawWeaponSelect_V( item_t *itm );
+#else
 void CG_DrawWeaponSelect( void );
-
+#endif
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 
 //
@@ -1386,9 +1437,9 @@ void CG_OutOfAmmoChange( void );	// should this be in pmove?
 void	CG_InitMarkPolys( void );
 void	CG_AddMarks( void );
 void	CG_ImpactMark( qhandle_t markShader, 
-				    const vec3_t origin, const vec3_t dir, 
+					const vec3_t origin, const vec3_t dir, 
 					float orientation, 
-				    float r, float g, float b, float a, 
+					float r, float g, float b, float a, 
 					qboolean alphaFade, 
 					float radius, qboolean temporary );
 
@@ -1467,7 +1518,7 @@ void CG_ParseServerinfo( void );
 void CG_ParseSysteminfo( void );
 void CG_SetConfigValues( void );
 void CG_ShaderStateChanged(void);
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 void CG_LoadVoiceChats( void );
 void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd );
 void CG_PlayBufferedVoiceChats( void );
@@ -1625,7 +1676,7 @@ void		trap_GetGlconfig( glconfig_t *glconfig );
 void		trap_GetGameState( gameState_t *gamestate );
 
 // cgame will poll each frame to see if a newer snapshot has arrived
-// that it is interested in.  The time is returned seperately so that
+// that it is interested in.  The time is returned separately so that
 // snapshot latency can be calculated.
 void		trap_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime );
 
@@ -1712,3 +1763,5 @@ extern int dll_com_trapGetValue;
 extern int dll_trap_R_AddRefEntityToScene2;
 extern int dll_trap_R_AddLinearLightToScene;
 #endif
+
+#endif // __CG_LOCAL_H__

@@ -94,8 +94,8 @@ typedef struct
 #define ID_MOUSELOOK	14
 #define ID_CENTERVIEW	15
 #define ID_ZOOMVIEW		16
-#define ID_WEAPON1		17	
-#define ID_WEAPON2		18	
+#define ID_WEAPON1		17
+#define ID_WEAPON2		18
 #define ID_WEAPON3		19	
 #define ID_WEAPON4		20	
 #define ID_WEAPON5		21	
@@ -279,34 +279,34 @@ static configcvar_t g_configcvars[] =
 
 static menucommon_s *g_movement_controls[] =
 {
-	(menucommon_s *)&s_controls.alwaysrun,     
-	(menucommon_s *)&s_controls.run,            
+	(menucommon_s *)&s_controls.alwaysrun,
+	(menucommon_s *)&s_controls.run,
 	(menucommon_s *)&s_controls.walkforward,
 	(menucommon_s *)&s_controls.backpedal,
-	(menucommon_s *)&s_controls.stepleft,      
-	(menucommon_s *)&s_controls.stepright,     
-	(menucommon_s *)&s_controls.moveup,        
-	(menucommon_s *)&s_controls.movedown,      
-	(menucommon_s *)&s_controls.turnleft,      
-	(menucommon_s *)&s_controls.turnright,     
+	(menucommon_s *)&s_controls.stepleft,
+	(menucommon_s *)&s_controls.stepright,
+	(menucommon_s *)&s_controls.moveup,
+	(menucommon_s *)&s_controls.movedown,
+	(menucommon_s *)&s_controls.turnleft,
+	(menucommon_s *)&s_controls.turnright,
 	(menucommon_s *)&s_controls.sidestep,
 	NULL
 };
 
 static menucommon_s *g_weapons_controls[] = {
-	(menucommon_s *)&s_controls.attack,           
+	(menucommon_s *)&s_controls.attack,
 	(menucommon_s *)&s_controls.nextweapon,
 	(menucommon_s *)&s_controls.prevweapon,
-	(menucommon_s *)&s_controls.autoswitch,    
-	(menucommon_s *)&s_controls.chainsaw,         
+	(menucommon_s *)&s_controls.autoswitch,
+	(menucommon_s *)&s_controls.chainsaw,
 	(menucommon_s *)&s_controls.machinegun,
-	(menucommon_s *)&s_controls.shotgun,          
+	(menucommon_s *)&s_controls.shotgun,
 	(menucommon_s *)&s_controls.grenadelauncher,
-	(menucommon_s *)&s_controls.rocketlauncher,   
-	(menucommon_s *)&s_controls.lightning,   
-	(menucommon_s *)&s_controls.railgun,          
-	(menucommon_s *)&s_controls.plasma,           
-	(menucommon_s *)&s_controls.bfg,              
+	(menucommon_s *)&s_controls.rocketlauncher,
+	(menucommon_s *)&s_controls.lightning,
+	(menucommon_s *)&s_controls.railgun,
+	(menucommon_s *)&s_controls.plasma, 
+	(menucommon_s *)&s_controls.bfg,
 	NULL,
 };
 

@@ -244,9 +244,9 @@ void CG_RailTrail( const clientInfo_t *ci, const vec3_t start, const vec3_t end 
 	VectorCopy(end, re->oldorigin);
  
 	re->shaderRGBA[0] = ci->color1[0] * 255;
-    re->shaderRGBA[1] = ci->color1[1] * 255;
-    re->shaderRGBA[2] = ci->color1[2] * 255;
-    re->shaderRGBA[3] = 255;
+	re->shaderRGBA[1] = ci->color1[1] * 255;
+	re->shaderRGBA[2] = ci->color1[2] * 255;
+	re->shaderRGBA[3] = 255;
 
 	le->color[0] = ci->color1[0] * 0.75;
 	le->color[1] = ci->color1[1] * 0.75;
@@ -533,20 +533,20 @@ static void CG_PlasmaTrail( centity_t *cent, const weaponInfo_t *wi ) {
 	else
 		re->u.shaderTime = cg.time / 1000.0f;
 
-    re->reType = RT_SPRITE;
-    re->radius = 0.25f;
+	re->reType = RT_SPRITE;
+	re->radius = 0.25f;
 	re->customShader = cgs.media.railRingsShader;
 	le->bounceFactor = 0.3f;
 
-    re->shaderRGBA[0] = wi->flashDlightColor[0] * 63;
-    re->shaderRGBA[1] = wi->flashDlightColor[1] * 63;
-    re->shaderRGBA[2] = wi->flashDlightColor[2] * 63;
-    re->shaderRGBA[3] = 63;
+	re->shaderRGBA[0] = wi->flashDlightColor[0] * 63;
+	re->shaderRGBA[1] = wi->flashDlightColor[1] * 63;
+	re->shaderRGBA[2] = wi->flashDlightColor[2] * 63;
+	re->shaderRGBA[3] = 63;
 
-    le->color[0] = wi->flashDlightColor[0] * 0.2;
-    le->color[1] = wi->flashDlightColor[1] * 0.2;
-    le->color[2] = wi->flashDlightColor[2] * 0.2;
-    le->color[3] = 0.25f;
+	le->color[0] = wi->flashDlightColor[0] * 0.2;
+	le->color[1] = wi->flashDlightColor[1] * 0.2;
+	le->color[2] = wi->flashDlightColor[2] * 0.2;
+	le->color[3] = 0.25f;
 
 	le->angles.trType = TR_LINEAR;
 	le->angles.trTime = cg.time;
@@ -835,7 +835,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
 		break;
 
-	 default:
+	default:
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 1 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
 		break;
@@ -1546,6 +1546,195 @@ WEAPON SELECTION
 CG_DrawWeaponSelect
 ===================
 */
+#ifdef NEOHUD
+static void CG_DrawWeaponSelect( item_t *itm ) {
+	int			i;
+	int			bits;
+	int			count;
+	int			weaponSelect;
+	const char	*name;
+	//float		*forecolor;
+	float		*fadeColor;
+	vec4_t		forecolor;
+
+	char		buf[16];
+	float		icoX, icoY;
+	qhandle_t	shader;
+	qboolean	SelectedColExist;
+	rectangle_t r;
+	item_t		ico;
+	item_t		icoS;
+
+	if ( cg_drawWeaponSelect.integer == 0 ) {
+		return;
+	}
+
+	if ( !CG_HUDItemVisible(itm) ) {
+		return;
+	}
+
+	// don't draw if dead or the scoreboard is being explicitly shown
+	if (cg.showScores || !cg.snap->ps.stats[STAT_HEALTH] > 0) {
+		return;
+	}
+
+	ico = dyn_itemArray[IcoWeapList_idx];
+	icoS = dyn_itemArray[IcoWeapListSel_idx];
+
+	weaponSelect = abs( cg_drawWeaponSelect.integer );
+
+	// color of text (ammo counters/selected name)
+	HUD_color(itm, &itm->forecolor, &forecolor, colorWhite);
+	
+	fadeColor = CG_FadeColor( cg.weaponSelectTime, itm->time, forecolor);
+	if ( !fadeColor) {
+		return;
+	}
+
+	trap_R_SetColor( fadeColor );
+
+	// showing weapon select clears pickup item display, but not the blend blob
+	cg.itemPickupTime = 0;
+
+	// count the number of weapons owned
+	bits = cg.snap->ps.stats[ STAT_WEAPONS ];
+	count = 0;
+	for ( i = WP_GAUNTLET ; i < MAX_WEAPONS ; i++ ) {
+		if ( bits & ( 1 << i ) ) {
+			count++;
+		}
+	}
+
+	// pos & size according to anchor & margins
+	HUD_Update_Anchors(itm, &r);
+	//CG_Update_Margin(itm, &r);
+
+	// horizontal ammo counters
+	if ( weaponSelect < 3 ) {
+		icoX = itm->rect.x - count * icoS.rect.w * 0.5;
+		icoY = itm->rect.y + cgs.screenYmin;
+	} else {// vertical ammo counters
+		icoX = itm->rect.x + cgs.screenXmin;
+		//icoY = itm->rect.y - count * icoS.rect.h * 0.5;
+		//CG_Update_Valign(itm, &r); // TODO
+
+		if (itm->propFlags & PROP_VALIGN_TOP)
+			icoY = itm->rect.y;
+		else if (itm->propFlags & PROP_VALIGN_MIDDLE)
+			icoY = itm->rect.y - count * icoS.rect.h * 0.5;
+		else if (itm->propFlags & PROP_VALIGN_BOTTOM)
+			icoY = itm->rect.y - count * icoS.rect.h ;
+	}
+
+	r.x = icoX;
+	r.y = icoY;
+	r.w = count * icoS.rect.w;
+	r.h = icoS.rect.h;
+
+	HUD_Update_finalRect(itm, r.x, r.y, r.w, r.h);
+
+	// is selected color defined in HUD file?
+	SelectedColExist = (icoS.backcolor.colorflags & C_COLOR_RGBA );//TOOD use HUD_Getbackcolor
+
+	shader = CG_HUDShader(&icoS, cgs.media.selectShader );
+
+	for ( i = WP_GAUNTLET ; i < MAX_WEAPONS ; i++ ) {
+		if ( !( bits & ( 1 << i ) ) ) {
+			continue;
+		}
+
+		CG_RegisterWeapon( i );
+
+		// draw weapon icon
+		CG_DrawPic( icoX, icoY, ico.rect.w, ico.rect.h, cg_weapons[i].weaponIcon );
+
+		// draw selection marker
+		if ( i == cg.weaponSelect ) {
+
+			if (SelectedColExist) {
+				trap_R_SetColor(icoS.backcolor.color);
+			}
+
+			if (icoS.param == 1) { // allow a better control of the selection mark
+				CG_DrawPic(icoX + icoS.rect.x, icoY + icoS.rect.y, icoS.rect.w, icoS.rect.h, shader);
+			}
+			else {
+				int icoSX = icoX - (icoS.rect.w - ico.rect.w) * 0.5f;
+				int icoSY = icoY - (icoS.rect.h - ico.rect.h) * 0.5f;
+
+				CG_DrawPic(icoSX, icoSY, icoS.rect.w, icoS.rect.h, shader);
+			}
+
+			if (SelectedColExist) {
+				trap_R_SetColor( NULL );
+			}
+		}
+
+		// no-ammo cross on top
+		if ( !cg.snap->ps.ammo[ i ] ) {
+			CG_DrawPic( icoX, icoY, ico.rect.w, ico.rect.h, cgs.media.noammoShader );
+		} else if ( weaponSelect > 1 && cg.snap->ps.ammo[ i ] > 0 ) {
+			item_t WpNameP = dyn_itemArray[WeapListSelName_idx];
+			
+			// ammo counter
+			BG_sprintf( buf, "%i", cg.snap->ps.ammo[ i ] );
+			
+			if ( weaponSelect == 2 ) {
+				// horizontal ammo counters
+				CG_DrawString( icoX + ico.rect.w/2, icoY - icoS.rect.h*0.5, buf, fadeColor,
+					WpNameP.fontsize.w, WpNameP.fontsize.h, 0, WpNameP.text.styleflags);// DS_CENTER | DS_PROPORTIONAL );
+			} else {
+				// vertical ammo counters
+				if (icoS.param == 1) {
+					int x = icoX + ico.rect.w;
+
+					if (WpNameP.text.styleflags & DS_RIGHT)
+						x += (3 * WpNameP.fontsize.w);
+
+					CG_DrawString(x, icoY + (ico.rect.h - WpNameP.fontsize.h) / 2, buf, fadeColor,
+						WpNameP.fontsize.w, WpNameP.fontsize.h, 0, WpNameP.text.styleflags);// DS_RIGHT );
+				}
+				else {
+					CG_DrawString(icoX + icoS.rect.w - 1 + (3 * WpNameP.fontsize.w), icoY + (ico.rect.h - WpNameP.fontsize.h) / 2, buf, fadeColor,
+						WpNameP.fontsize.w, WpNameP.fontsize.h, 0, WpNameP.text.styleflags);// DS_RIGHT );
+				}
+
+			}
+		}
+
+		if (weaponSelect < 3)
+			icoX += icoS.rect.w;
+		else
+			icoY += icoS.rect.h + itm->margin.top;
+	}
+
+	// draw selected weapon name
+	if ( cg_weapons[ cg.weaponSelect ].item && weaponSelect == 1 ) {
+		name = cg_weapons[ cg.weaponSelect ].item->pickup_name;
+		if ( name ) {
+			item_t WpNameP = dyn_itemArray[WeapListSelName_idx];
+
+			CG_DrawString(itm->rect.x, icoY - (WpNameP.fontsize.h + 6), name, fadeColor,
+				WpNameP.fontsize.w, WpNameP.fontsize.h, 0, WpNameP.text.styleflags | DS_FORCE_COLOR);// DS_SHADOW | DS_PROPORTIONAL | DS_CENTER | DS_FORCE_COLOR);
+		}
+	}
+	trap_R_SetColor( NULL );
+}
+
+// horizontal ammo
+void CG_DrawWeaponSelect_H( item_t *itm ) {
+	if (abs(cg_drawWeaponSelect.integer) < 3) {
+		CG_DrawWeaponSelect(itm);
+	}
+}
+
+// vertical ammo
+void CG_DrawWeaponSelect_V( item_t *itm ) {
+	if (abs(cg_drawWeaponSelect.integer) >= 3) {
+		CG_DrawWeaponSelect(itm);
+	}
+}
+#else
 #define AMMO_FONT_SIZE 12
 void CG_DrawWeaponSelect( void ) {
 	int		i;
@@ -1643,6 +1832,7 @@ void CG_DrawWeaponSelect( void ) {
 
 	trap_R_SetColor( NULL );
 }
+#endif
 
 
 /*
@@ -1849,7 +2039,7 @@ void CG_FireWeapon( centity_t *cent ) {
 	}
 
 	// play a sound
-	for ( c = 0 ; c < ARRAY_LEN( weap->flashSound ) ; c++ ) {
+	for ( c = 0; c < ARRAY_LEN( weap->flashSound ); c++ ) {
 		if ( !weap->flashSound[c] ) {
 			break;
 		}

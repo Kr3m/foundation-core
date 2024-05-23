@@ -361,7 +361,7 @@ BotSetTeamStatus
 ==================
 */
 void BotSetTeamStatus(bot_state_t *bs) {
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 	int teamtask;
 	aas_entityinfo_t entinfo;
 
@@ -372,8 +372,13 @@ void BotSetTeamStatus(bot_state_t *bs) {
 			break;
 		case LTG_TEAMACCOMPANY:
 			BotEntityInfo(bs->teammate, &entinfo);
+#ifdef MISSIONPACK
 			if ( ( (gametype == GT_CTF || gametype == GT_1FCTF) && EntityCarriesFlag(&entinfo))
-				|| ( gametype == GT_HARVESTER && EntityCarriesCubes(&entinfo)) ) {
+				|| ( gametype == GT_HARVESTER && EntityCarriesCubes(&entinfo) ) {
+#endif
+#ifdef NEOHUD
+			if ( (gametype == GT_CTF) && EntityCarriesFlag(&entinfo) ) {
+#endif
 				teamtask = TEAMTASK_ESCORT;
 			}
 			else {
@@ -696,7 +701,7 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 	if ( bs->lastgoal_ltgtype ) {
 		bs->teamgoal_time += 60;
 	}
-	// if the bot decided to do something on it's own and has a last ordered goal
+	// if the bot decided to do something on its own and has a last ordered goal
 	if ( !bs->ordered && bs->lastgoal_ltgtype ) {
 		bs->ltgtype = 0;
 	}
@@ -723,7 +728,7 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 	//if the bot is roaming
 	if (bs->ctfroam_time > FloatTime())
 		return;
-	//if the bot has anough aggression to decide what to do
+	//if the bot has enough aggression to decide what to do
 	if (BotAggression(bs) < 50)
 		return;
 	//set the time to send a message to the team mates
@@ -946,7 +951,7 @@ void Bot1FCTFSeekGoals(bot_state_t *bs) {
 	if ( bs->lastgoal_ltgtype ) {
 		bs->teamgoal_time += 60;
 	}
-	// if the bot decided to do something on it's own and has a last ordered goal
+	// if the bot decided to do something on its own and has a last ordered goal
 	if ( !bs->ordered && bs->lastgoal_ltgtype ) {
 		bs->ltgtype = 0;
 	}
@@ -974,7 +979,7 @@ void Bot1FCTFSeekGoals(bot_state_t *bs) {
 	//if the bot is roaming
 	if (bs->ctfroam_time > FloatTime())
 		return;
-	//if the bot has anough aggression to decide what to do
+	//if the bot has enough aggression to decide what to do
 	if (BotAggression(bs) < 50)
 		return;
 	//set the time to send a message to the team mates
@@ -1088,7 +1093,7 @@ void BotObeliskSeekGoals(bot_state_t *bs) {
 	//if the bot is roaming
 	if (bs->ctfroam_time > FloatTime())
 		return;
-	//if the bot has anough aggression to decide what to do
+	//if the bot has enough aggression to decide what to do
 	if (BotAggression(bs) < 50)
 		return;
 	//set the time to send a message to the team mates
@@ -1233,7 +1238,7 @@ void BotHarvesterSeekGoals(bot_state_t *bs) {
 	//if the bot is roaming
 	if (bs->ctfroam_time > FloatTime())
 		return;
-	//if the bot has anough aggression to decide what to do
+	//if the bot has enough aggression to decide what to do
 	if (BotAggression(bs) < 50)
 		return;
 	//set the time to send a message to the team mates
@@ -1545,7 +1550,7 @@ char *EasyClientName(int client, char *buf, int size) {
 			memmove(ptr, ptr+1, strlen(ptr + 1)+1);
 		}
 	}
-	
+
 	Q_strncpyz( buf, name, size );
 
 	return buf;
@@ -2539,7 +2544,7 @@ int BotWantsToCamp(bot_state_t *bs) {
 		bs->camp_time = FloatTime();
 		return qfalse;
 	}
-	//if the bot isn't healthy anough
+	//if the bot isn't healthy enough
 	if (BotAggression(bs) < 50) return qfalse;
 	//the bot should have at least have the rocket launcher, the railgun or the bfg10k with some ammo
 	if ((bs->inventory[INVENTORY_ROCKETLAUNCHER] <= 0 || bs->inventory[INVENTORY_ROCKETS] < 10) &&
@@ -2631,7 +2636,7 @@ void BotRoamGoal(bot_state_t *bs, vec3_t goal) {
 		//direction and length towards the roam target
 		VectorSubtract(trace.endpos, bs->origin, dir);
 		len = VectorNormalize(dir);
-		//if the roam target is far away anough
+		//if the roam target is far away enough
 		if (len > 200) {
 			//the roam target is in the given direction before walls
 			VectorScale(dir, len * trace.fraction - 40, dir);
@@ -2787,7 +2792,7 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 		bs->flags ^= BFL_STRAFERIGHT;
 		bs->attackstrafe_time = 0;
 	}
-	//bot couldn't do any usefull movement
+	//bot couldn't do any useful movement
 //	bs->attackchase_time = AAS_Time() + 6;
 	return moveresult;
 }
@@ -3428,7 +3433,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 			VectorSubtract(entinfo.origin, bs->enemyorigin, dir);
 			//if the enemy is NOT pretty far away and strafing just small steps left and right
 			if (!(dist > 100 && VectorLengthSquared(dir) < Square(32))) {
-				//if skilled anough do exact prediction
+				//if skilled enough do exact prediction
 				if (aim_skill > 0.8 &&
 						//if the weapon is ready to fire
 						bs->cur_ps.weaponstate == WEAPON_READY) {
@@ -4003,7 +4008,6 @@ int BotFuncDoorActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *act
 	int modelindex, entitynum;
 	char model[MAX_INFO_STRING];
 	vec3_t mins, maxs, origin;
-	//vec3_t angles;
 
 	//shoot at the shootable door
 	trap_AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
@@ -4012,7 +4016,7 @@ int BotFuncDoorActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *act
 	modelindex = atoi(model+1);
 	if (!modelindex)
 		return qfalse;
-	//VectorClear(angles);
+
 	entitynum = BotModelMinsMaxs(modelindex, ET_MOVER, 0, mins, maxs);
 	//door origin
 	VectorAdd(mins, maxs, origin);
@@ -4039,7 +4043,6 @@ int BotTriggerMultipleActivateGoal(bot_state_t *bs, int bspent, bot_activategoal
 	int i, areas[10], numareas, modelindex, entitynum;
 	char model[128];
 	vec3_t start, end, mins, maxs;
-	//vec3_t angles;
 	vec3_t origin, goalorigin;
 
 	activategoal->shoot = qfalse;
@@ -4051,7 +4054,6 @@ int BotTriggerMultipleActivateGoal(bot_state_t *bs, int bspent, bot_activategoal
 	modelindex = atoi(model+1);
 	if (!modelindex)
 		return qfalse;
-	//VectorClear(angles);
 	entitynum = BotModelMinsMaxs(modelindex, 0, CONTENTS_TRIGGER, mins, maxs);
 	//trigger origin
 	VectorAdd(mins, maxs, origin);
@@ -4200,7 +4202,6 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 	aas_entityinfo_t entinfo;
 	aas_areainfo_t areainfo;
 	vec3_t origin, absmins, absmaxs;
-	//vec3_t angles;
 
 	memset(activategoal, 0, sizeof(bot_activategoal_t));
 	BotEntityInfo(entitynum, &entinfo);
@@ -4244,7 +4245,6 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		if (*model) {
 			modelindex = atoi(model+1);
 			if (modelindex) {
-				//VectorClear(angles);
 				BotModelMinsMaxs(modelindex, ET_MOVER, 0, absmins, absmaxs);
 				//
 				numareas = trap_AAS_BBoxAreas(absmins, absmaxs, areas, MAX_ACTIVATEAREAS*2);
@@ -4569,7 +4569,7 @@ BotAIPredictObstacles
 
 Predict the route towards the goal and check if the bot
 will be blocked by certain obstacles. When the bot has obstacles
-on it's path the bot should figure out if they can be removed
+on its path the bot should figure out if they can be removed
 by activating certain entities.
 ==================
 */
@@ -4890,7 +4890,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 			else*/
 #ifdef MISSIONPACK
 			if (!strcmp(buf, "sound/items/kamikazerespawn.wav" )) {
-				//the kamikaze respawned so dont avoid it
+				//the kamikaze respawned so don't avoid it
 				BotDontAvoid(bs, "Kamikaze");
 			}
 			else
@@ -5171,7 +5171,7 @@ void BotSetupAlternativeRouteGoals(void) {
 #ifdef MISSIONPACK
 	if (gametype == GT_CTF) {
 		if (trap_BotGetLevelItemGoal(-1, "Neutral Flag", &ctf_neutralflag) < 0)
-			BotAI_Print(PRT_WARNING, "no alt routes without Neutral Flag\n");
+			BotAI_Print(PRT_WARNING, "No alt routes without Neutral Flag\n");
 		if (ctf_neutralflag.areanum) {
 			//
 			red_numaltroutegoals = trap_AAS_AlternativeRouteGoals(

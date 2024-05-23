@@ -319,7 +319,7 @@ int G_RemoveRandomBot( int team ) {
 	char netname[36];
 	gclient_t	*cl;
 
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
+	for ( i = 0; i < level.maxclients; i++ ) {
 		cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
@@ -349,7 +349,7 @@ static int G_CountHumanPlayers( team_t team ) {
 	gclient_t	*cl;
 
 	num = 0;
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
+	for ( i = 0; i < level.maxclients; i++ ) {
 		cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;

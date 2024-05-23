@@ -57,7 +57,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // for the voice chats
 #ifdef MISSIONPACK
 #include "../../ui/menudef.h"
+#endif
 
+#ifdef NEOHUD
+#include "../ui/menudef.h"
+#endif
+
+#if defined MISSIONPACK || defined NEOHUD
 typedef struct voiceCommand_s
 {
 	char *cmd;
@@ -503,7 +509,7 @@ void BotVoiceChat_WantOnOffense(bot_state_t *bs, int client, int mode) {
 void BotVoiceChat_Dummy(bot_state_t *bs, int client, int mode) {
 }
 
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 voiceCommand_t voiceCommands[] = {
 	{VOICECHAT_GETFLAG, BotVoiceChat_GetFlag},
 	{VOICECHAT_OFFENSE, BotVoiceChat_Offense },
@@ -524,8 +530,8 @@ voiceCommand_t voiceCommands[] = {
 #endif
 
 int BotVoiceChatCommand(bot_state_t *bs, int mode, char *voiceChat) {
-#ifdef MISSIONPACK
-	int i, voiceOnly, clientNum, color;
+#if defined MISSIONPACK || defined NEOHUD
+	int i, clientNum;
 	char *ptr, buf[MAX_MESSAGE_SIZE], *cmd;
 
 	if (!TeamPlayIsOn()) {

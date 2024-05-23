@@ -120,7 +120,7 @@ Called on a first-time connect
 */
 void G_InitSessionData( gclient_t *client, const char *team, qboolean isBot ) {
 	clientSession_t	*sess;
-	
+
 	sess = &client->sess;
 
 	// initial team determination

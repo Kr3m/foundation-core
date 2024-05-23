@@ -34,15 +34,15 @@ MAIN MENU
 
 #define ID_SINGLEPLAYER			10
 #define ID_MULTIPLAYER			11
-#define ID_SETUP				12
-#define ID_DEMOS				13
+#define ID_SETUP			12
+#define ID_DEMOS			13
 #define ID_CINEMATICS			14
-#define ID_TEAMARENA		15
-#define ID_MODS					16
-#define ID_EXIT					17
+#define ID_TEAMARENA			15
+#define ID_MODS				16
+#define ID_EXIT				17
 
-#define MAIN_BANNER_MODEL				"models/mapobjects/banner/banner5.md3"
-#define MAIN_MENU_VERTICAL_SPACING		34
+#define MAIN_BANNER_MODEL		"models/mapobjects/banner/banner5.md3"
+#define MAIN_MENU_VERTICAL_SPACING	34
 
 
 typedef struct {
@@ -194,7 +194,7 @@ static void Main_MenuDraw( void ) {
 
 	trap_R_ClearScene();
 
-	// add the model
+	// add the banner model
 
 	memset( &ent, 0, sizeof(ent) );
 
@@ -210,7 +210,7 @@ static void Main_MenuDraw( void ) {
 	trap_R_AddRefEntityToScene( &ent );
 
 	trap_R_RenderScene( &refdef );
-	
+
 	if (strlen(s_errorMessage.errorMessage))
 	{
 		UI_DrawProportionalString_AutoWrapped( 320, 192, 600, 20, s_errorMessage.errorMessage, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
@@ -247,11 +247,11 @@ static qboolean UI_TeamArenaExists( void ) {
 	dirptr  = dirlist;
 	for( i = 0; i < numdirs; i++ ) {
 		dirlen = strlen( dirptr ) + 1;
-    descptr = dirptr + dirlen;
+		descptr = dirptr + dirlen;
 		if (Q_stricmp(dirptr, "missionpack") == 0) {
 			return qtrue;
 		}
-    dirptr += dirlen + strlen(descptr) + 1;
+	dirptr += dirlen + strlen(descptr) + 1;
 	}
 	return qfalse;
 }
@@ -410,10 +410,10 @@ void UI_MainMenu( void ) {
 		Menu_AddItem( &s_main.menu,	&s_main.teamArena );
 	}
 	Menu_AddItem( &s_main.menu,	&s_main.mods );
-	Menu_AddItem( &s_main.menu,	&s_main.exit );             
+	Menu_AddItem( &s_main.menu,	&s_main.exit );
 
 	trap_Key_SetCatcher( KEYCATCH_UI );
 	uis.menusp = 0;
 	UI_PushMenu ( &s_main.menu );
-		
+
 }

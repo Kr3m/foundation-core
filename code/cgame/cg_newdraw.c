@@ -40,7 +40,7 @@ int drawTeamOverlayModificationCount = -1;
 //static char teamChat1[256];
 //static char teamChat2[256];
 
-void CG_InitTeamChat() {
+void CG_InitTeamChat( void ) {
   memset(teamChat1, 0, sizeof(teamChat1));
   memset(teamChat2, 0, sizeof(teamChat2));
   memset(systemChat, 0, sizeof(systemChat));
@@ -55,7 +55,7 @@ void CG_SetPrintString(int type, const char *p) {
   }
 }
 
-void CG_CheckOrderPending() {
+void CG_CheckOrderPending( void ) {
 	if (cgs.gametype < GT_CTF) {
 		return;
 	}
@@ -119,7 +119,7 @@ void CG_CheckOrderPending() {
 	}
 }
 
-static void CG_SetSelectedPlayerName() {
+static void CG_SetSelectedPlayerName( void ) {
   if (cg_currentSelectedPlayer.integer >= 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers) {
 		clientInfo_t *ci = cgs.clientinfo + sortedTeamPlayers[cg_currentSelectedPlayer.integer];
 	  if (ci) {
@@ -541,7 +541,6 @@ static void CG_DrawSelectedPlayerHead( rectDef_t *rect, qboolean draw2D, qboolea
 	vec3_t			origin;
 	vec3_t			mins, maxs, angles;
 
-
   ci = cgs.clientinfo + ((voice) ? cgs.currentVoiceClient : sortedTeamPlayers[CG_GetSelectedPlayer()]);
 
   if (ci) {
@@ -861,7 +860,7 @@ static void CG_DrawAreaPowerUp(rectDef_t *rect, int align, float special, float 
 		t = ps->powerups[ i ] - cg.time;
 		// ZOID--don't draw if the power up has unlimited time (999 seconds)
 		// This is true of the CTF flags
-		if ( t <= 0 || t >= 999000) {
+		if ( t <= 0 || t >= 999000 ) {
 			continue;
 		}
 
@@ -1512,7 +1511,7 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 
 }
 
-	
+
 //
 void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle) {
 	rectDef_t rect;

@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
+// compile new HUD parser
+#define NEOHUD
+
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
@@ -311,8 +314,10 @@ extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 #define	SCREEN_WIDTH		640
 #define	SCREEN_HEIGHT		480
 
+#ifndef NEOHUD
 #define TINYCHAR_WIDTH		(SMALLCHAR_WIDTH)
 #define TINYCHAR_HEIGHT		(SMALLCHAR_HEIGHT/2)
+#endif
 
 #define SMALLCHAR_WIDTH		8
 #define SMALLCHAR_HEIGHT	16
@@ -633,6 +638,12 @@ typedef enum {
 } fsOrigin_t;
 
 //=============================================
+#ifdef NEOHUD
+int trap_PC_SourceFileAndLine( int handle, char *filename, int *line );
+int trap_PC_ReadToken( int handle, pc_token_t *pc_token );
+int trap_PC_LoadSource( const char *filename );
+int trap_PC_FreeSource( int handle );
+#endif
 
 extern const byte locase[ 256 ];
 

@@ -422,7 +422,7 @@ static void PlayerModel_BuildList( void )
 		{
 			filelen = strlen(fileptr);
 
-			COM_StripExtension(fileptr,skinname,sizeof(skinname));
+			COM_StripExtension( fileptr, skinname, sizeof(skinname) );
 
 			// look for icon_????
 			if (!Q_stricmpn(skinname,"icon_",5))
@@ -471,8 +471,8 @@ static void PlayerModel_SetMenuItems( void )
 	for (i=0; i<s_playermodel.nummodels; i++)
 	{
 		// strip icon_
-		buffptr  = s_playermodel.modelnames[i] + strlen("models/players/");
-		pdest    = strstr(buffptr,"icon_");
+		buffptr	= s_playermodel.modelnames[i] + strlen("models/players/");
+		pdest	= strstr(buffptr,"icon_");
 		if (pdest)
 		{
 			Q_strncpyz(modelskin,buffptr,pdest-buffptr+1);
@@ -484,17 +484,17 @@ static void PlayerModel_SetMenuItems( void )
 		if (!Q_stricmp( s_playermodel.modelskin, modelskin ))
 		{
 			// found pic, set selection here		
-			s_playermodel.selectedmodel = i;
-			s_playermodel.modelpage     = i/MAX_MODELSPERPAGE;
+			s_playermodel.selectedmodel	= i;
+			s_playermodel.modelpage		= i/MAX_MODELSPERPAGE;
 
-			// seperate the model name
+			// separate the model name
 			maxlen = pdest-buffptr;
 			if (maxlen > 16)
 				maxlen = 16;
 			Q_strncpyz( s_playermodel.modelname.string, buffptr, maxlen );
 			Q_strupr( s_playermodel.modelname.string );
 
-			// seperate the skin name
+			// separate the skin name
 			maxlen = strlen(pdest+5)+1;
 			if (maxlen > 16)
 				maxlen = 16;

@@ -165,7 +165,7 @@ CG_ForceModelChange
 */
 void CG_ForceModelChange( void ) {
 	const char *clientInfo;
-	int	i;
+	int i;
 
 	for ( i = 0 ; i < MAX_CLIENTS ; i++ ) {
 		clientInfo = CG_ConfigString( CS_PLAYERS + i );
@@ -326,7 +326,7 @@ static void CG_RegisterItemSounds( int itemNum ) {
 		trap_S_RegisterSound( item->pickup_sound, qfalse );
 	}
 
-	// parse the space seperated precache string for other media
+	// parse the space separated precache string for other media
 	s = item->sounds;
 	if (!s || !s[0])
 		return;
@@ -846,6 +846,19 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.medalAssist = trap_R_RegisterShaderNoMip( "medal_assist" );
 	cgs.media.medalCapture = trap_R_RegisterShaderNoMip( "medal_capture" );
 
+#ifdef NEOHUD
+	// Quake Live HUD default icons
+	cgs.media.gameTypeShader[GT_FFA] = trap_R_RegisterShaderNoMip("hud/hudQL/ffa");//free for all
+	cgs.media.gameTypeShader[GT_TOURNAMENT] = trap_R_RegisterShaderNoMip("hud/hudQL/duel");//one on one tournament
+	cgs.media.gameTypeShader[GT_SINGLE_PLAYER] = trap_R_RegisterShaderNoMip("hud/hudQL/ffa");//single player ffa
+	cgs.media.gameTypeShader[GT_TEAM] = trap_R_RegisterShaderNoMip("hud/hudQL/tdm");//team deathmatch
+	cgs.media.gameTypeShader[GT_CTF] = trap_R_RegisterShaderNoMip("hud/hudQL/ctf");//capture the flag
+#endif
+#ifdef MISSIONPACK
+	cgs.media.gameTypeShader[GT_1FCTF] = trap_R_RegisterShaderNoMip("hud/hudQL/1f");
+	cgs.media.gameTypeShader[GT_OBELISK] = trap_R_RegisterShaderNoMip("hud/hudQL/har");
+	cgs.media.gameTypeShader[GT_HARVESTER] = trap_R_RegisterShaderNoMip("hud/hudQL/har");
+#endif
 
 	memset( cg_items, 0, sizeof( cg_items ) );
 	memset( cg_weapons, 0, sizeof( cg_weapons ) );
@@ -896,9 +909,10 @@ static void CG_RegisterGraphics( void ) {
 		}
 		cgs.gameModels[i] = trap_R_RegisterModel( modelName );
 	}
-	
+
 	cgs.media.cursor = trap_R_RegisterShaderNoMip( "menu/art/3_cursor2" );
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
+	cgs.media.menuscreen2 = trap_R_RegisterShader("menuscreen2");
 	// new stuff
 	cgs.media.patrolShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/patrol.tga");
 	cgs.media.assaultShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/assault.tga");
@@ -908,12 +922,15 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.teamLeaderShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/team_leader.tga");
 	cgs.media.retrieveShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/retrieve.tga");
 	cgs.media.escortShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/escort.tga");
-	cgs.media.sizeCursor = trap_R_RegisterShaderNoMip( "ui/assets/sizecursor.tga" );
-	cgs.media.selectCursor = trap_R_RegisterShaderNoMip( "ui/assets/selectcursor.tga" );
+
 	cgs.media.flagShaders[0] = trap_R_RegisterShaderNoMip("ui/assets/statusbar/flag_in_base.tga");
 	cgs.media.flagShaders[1] = trap_R_RegisterShaderNoMip("ui/assets/statusbar/flag_capture.tga");
 	cgs.media.flagShaders[2] = trap_R_RegisterShaderNoMip("ui/assets/statusbar/flag_missing.tga");
+#endif
 
+#ifdef MISSIONPACK
+	cgs.media.sizeCursor 	= trap_R_RegisterShaderNoMip( "ui/assets/sizecursor.tga" );
+	cgs.media.selectCursor 	= trap_R_RegisterShaderNoMip( "ui/assets/selectcursor.tga" );
 	trap_R_RegisterModel( "models/players/james/lower.md3" );
 	trap_R_RegisterModel( "models/players/james/upper.md3" );
 	trap_R_RegisterModel( "models/players/heads/james/james.md3" );
@@ -1062,7 +1079,7 @@ qboolean CG_Asset_Parse(int handle) {
 	if (Q_stricmp(token.string, "{") != 0) {
 		return qfalse;
 	}
-    
+
 	while ( 1 ) {
 		if (!trap_PC_ReadToken(handle, &token))
 			return qfalse;
@@ -1091,7 +1108,7 @@ qboolean CG_Asset_Parse(int handle) {
 			continue;
 		}
 
-		// font
+		// bigfont
 		if (Q_stricmp(token.string, "bigfont") == 0) {
 			int pointSize;
 			if (!PC_String_Parse(handle, &tempStr) || !PC_Int_Parse(handle, &pointSize)) {
@@ -1258,7 +1275,7 @@ qboolean CG_Load_Menu(char **p) {
 	while ( 1 ) {
 
 		token = COM_ParseExt(p, qtrue);
-    
+
 		if (Q_stricmp(token, "}") == 0) {
 			return qtrue;
 		}
@@ -1803,7 +1820,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	trap_CM_LoadMap( cgs.mapname );
 
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 	String_Init();
 #endif
 
@@ -1819,11 +1836,15 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	CG_LoadingString( "clients" );
 
-	CG_RegisterClients();		// if low on memory, some clients will be deferred
+	CG_RegisterClients();	// if low on memory, some clients will be deferred
 
 #ifdef MISSIONPACK
 	CG_AssetCache();
-	CG_LoadHudMenu();      // load new hud stuff
+	CG_LoadHudMenu();      	// load new hud stuff
+#endif
+
+#ifdef NEOHUD
+	CG_CheckHUD();			// full parse of selected HUD
 #endif
 
 	cg.loading = qfalse;	// future players will be deferred

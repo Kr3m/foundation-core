@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 // 
-// string allocation/managment
+// string allocation/management
 
 #include "ui_shared.h"
 
@@ -118,7 +118,7 @@ void UI_InitMemory( void ) {
 	outOfMemory = qfalse;
 }
 
-qboolean UI_OutOfMemory() {
+qboolean UI_OutOfMemory( void ) {
 	return outOfMemory;
 }
 
@@ -210,7 +210,7 @@ const char *String_Alloc(const char *p) {
 	return NULL;
 }
 
-void String_Report() {
+void String_Report( void ) {
 	float f;
 	Com_Printf("Memory/String Pool Info\n");
 	Com_Printf("----------------\n");
@@ -229,7 +229,7 @@ void String_Report() {
 String_Init
 =================
 */
-void String_Init() {
+void String_Init( void ) {
 	int i;
 	for (i = 0; i < HASH_TABLE_SIZE; i++) {
 		strHandle[i] = 0;
@@ -1032,7 +1032,7 @@ void Menus_CloseByName(const char *p) {
   }
 }
 
-void Menus_CloseAll() {
+void Menus_CloseAll( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
 		Menu_RunCloseScript(&Menus[i]);
@@ -1926,16 +1926,13 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 }
 
 qboolean Item_YesNo_HandleKey(itemDef_t *item, int key) {
-
-  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar) {
+	if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar) {
 		if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
-	    DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
-		  return qtrue;
+		DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
+			return qtrue;
 		}
-  }
-
-  return qfalse;
-
+	}
+	return qfalse;
 }
 
 int Item_Multi_CountSettings(itemDef_t *item) {
@@ -2001,7 +1998,7 @@ const char *Item_Multi_Setting(itemDef_t *item) {
 qboolean Item_Multi_HandleKey(itemDef_t *item, int key) {
 	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
 	if (multiPtr) {
-	  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar) {
+		if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar) {
 			if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
 				int current = Item_Multi_FindCvarByValue(item) + 1;
 				int max = Item_Multi_CountSettings(item);
@@ -2053,7 +2050,7 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 					}
 				}
 				DC->setCVar(item->cvar, buff);
-	    		return qtrue;
+				return qtrue;
 			}
 
 
@@ -2061,8 +2058,8 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 			// ignore any non printable chars
 			//
 			if ( key < 32 || !item->cvar) {
-			    return qtrue;
-		    }
+				return qtrue;
+			}
 
 			if (item->type == ITEM_TYPE_NUMERICFIELD) {
 				if (key < '0' || key > '9') {
@@ -2513,7 +2510,7 @@ static void Menu_CloseCinematics(menuDef_t *menu) {
 	}
 }
 
-static void Display_CloseCinematics() {
+static void Display_CloseCinematics( void ) {
 	int i;
 	for (i = 0; i < menuCount; i++) {
 		Menu_CloseCinematics(&Menus[i]);
@@ -2537,7 +2534,7 @@ void  Menus_Activate(menuDef_t *menu) {
 
 }
 
-int Display_VisibleMenuCount() {
+int Display_VisibleMenuCount( void ) {
 	int i, count;
 	count = 0;
 	for (i = 0; i < menuCount; i++) {
@@ -2626,7 +2623,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		return;
 	}
 
-		// see if the mouse is within the window bounds and if so is this a mouse click
+	// see if the mouse is within the window bounds and if so is this a mouse click
 	if (down && !(menu->window.flags & WINDOW_POPUP) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory)) {
 		static qboolean inHandleKey = qfalse;
 		// bk001206 - parentheses
@@ -3449,7 +3446,7 @@ void Item_Bind_Paint(itemDef_t *item) {
 	}
 }
 
-qboolean Display_KeyBindPending() {
+qboolean Display_KeyBindPending( void ) {
 	return g_waitingForKey;
 }
 
@@ -4075,7 +4072,7 @@ itemDef_t *Menu_GetFocusedItem(menuDef_t *menu) {
   return NULL;
 }
 
-menuDef_t *Menu_GetFocused() {
+menuDef_t *Menu_GetFocused( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
     if (Menus[i].window.flags & WINDOW_HASFOCUS && Menus[i].window.flags & WINDOW_VISIBLE) {
@@ -4125,7 +4122,7 @@ void Menu_SetFeederSelection(menuDef_t *menu, int feeder, int index, const char 
 	}
 }
 
-qboolean Menus_AnyFullScreenVisible() {
+qboolean Menus_AnyFullScreenVisible( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
     if (Menus[i].window.flags & WINDOW_VISIBLE && Menus[i].fullScreen) {
@@ -4135,7 +4132,7 @@ qboolean Menus_AnyFullScreenVisible() {
   return qfalse;
 }
 
-menuDef_t *Menus_ActivateByName(const char *p) {
+menuDef_t *Menus_ActivateByName( const char *p ) {
   int i;
   menuDef_t *m = NULL;
 	menuDef_t *focus = Menu_GetFocused();
@@ -4225,13 +4222,12 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y) {
 						}
 					}
 				}
-      } else if (menu->items[i]->window.flags & WINDOW_MOUSEOVER) {
-          Item_MouseLeave(menu->items[i]);
-          Item_SetMouseOver(menu->items[i], qfalse);
-      }
-    }
-  }
-
+			} else if (menu->items[i]->window.flags & WINDOW_MOUSEOVER) {
+				Item_MouseLeave(menu->items[i]);
+				Item_SetMouseOver(menu->items[i], qfalse);
+			}
+		}
+	}
 }
 
 void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
@@ -5611,11 +5607,11 @@ void Menu_New(int handle) {
 	}
 }
 
-int Menu_Count() {
+int Menu_Count( void ) {
 	return menuCount;
 }
 
-void Menu_PaintAll() {
+void Menu_PaintAll( void ) {
 	int i;
 	if (captureFunc) {
 		captureFunc(captureData);
@@ -5631,11 +5627,11 @@ void Menu_PaintAll() {
 	}
 }
 
-void Menu_Reset() {
+void Menu_Reset( void ) {
 	menuCount = 0;
 }
 
-displayContextDef_t *Display_GetContext() {
+displayContextDef_t *Display_GetContext( void ) {
 	return DC;
 }
  
@@ -5740,7 +5736,7 @@ static void Menu_CacheContents(menuDef_t *menu) {
 
 }
 
-void Display_CacheAll() {
+void Display_CacheAll( void ) {
 	int i;
 	for (i = 0; i < menuCount; i++) {
 		Menu_CacheContents(&Menus[i]);

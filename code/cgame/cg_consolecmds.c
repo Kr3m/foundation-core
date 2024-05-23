@@ -238,7 +238,7 @@ static void CG_TellAttacker_f( void ) {
 }
 
 
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 /*
 ==================
 CG_VoiceTellTarget_f
@@ -281,11 +281,11 @@ static void CG_VoiceTellAttacker_f( void ) {
 }
 
 static void CG_NextTeamMember_f( void ) {
-  CG_SelectNextPlayer();
+	CG_SelectNextPlayer();
 }
 
 static void CG_PrevTeamMember_f( void ) {
-  CG_SelectPrevPlayer();
+	CG_SelectPrevPlayer();
 }
 
 // ASS U ME's enumeration order as far as task specific orders, OFFENSE is zero, CAMP is last
@@ -338,7 +338,11 @@ static void CG_DenyOrder_f (void ) {
 }
 
 static void CG_TaskOffense_f (void ) {
-	if (cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF) {
+	if (cgs.gametype == GT_CTF 
+#ifdef MISSIONPACK
+		|| cgs.gametype == GT_1FCTF
+#endif
+		) {
 		trap_SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONGETFLAG));
 	} else {
 		trap_SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONOFFENSE));
@@ -509,10 +513,10 @@ static consoleCommand_t	commands[] = {
 	{ "tcmd", CG_TargetCommand_f },
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 	{ "vtell_target", CG_VoiceTellTarget_f },
 	{ "vtell_attacker", CG_VoiceTellAttacker_f },
-	{ "loadhud", CG_LoadHud_f },
+
 	{ "nextTeamMember", CG_NextTeamMember_f },
 	{ "prevTeamMember", CG_PrevTeamMember_f },
 	{ "nextOrder", CG_NextOrder_f },
@@ -532,6 +536,9 @@ static consoleCommand_t	commands[] = {
 	{ "tauntTaunt", CG_TauntTaunt_f },
 	{ "tauntDeathInsult", CG_TauntDeathInsult_f },
 	{ "tauntGauntlet", CG_TauntGauntlet_f },
+#endif
+#ifdef MISSIONPACK
+	{ "loadhud", CG_LoadHud_f },
 	{ "spWin", CG_spWin_f },
 	{ "spLose", CG_spLose_f },
 	{ "scoresDown", CG_scrollScoresDown_f },
@@ -591,7 +598,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("say");
 	trap_AddCommand ("say_team");
 	trap_AddCommand ("tell");
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 	trap_AddCommand ("vsay");
 	trap_AddCommand ("vsay_team");
 	trap_AddCommand ("vtell");

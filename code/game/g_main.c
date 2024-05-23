@@ -462,7 +462,7 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	// range are NEVER anything but clients
 	level.num_entities = MAX_CLIENTS;
 
-	for ( i = 0 ; i < MAX_CLIENTS ; i++ ) {
+	for ( i = 0; i < MAX_CLIENTS; i++ ) {
 		g_entities[ i ].classname = "clientslot";
 	}
 
@@ -523,7 +523,7 @@ static void G_InitGame( int levelTime, int randomSeed, int restart ) {
 G_ShutdownGame
 =================
 */
-static void G_ShutdownGame( int restart ) 
+static void G_ShutdownGame( int restart )
 {
 	G_Printf ("==== ShutdownGame ====\n");
 
@@ -921,9 +921,9 @@ If a new client connects, this will be called after the spawn function.
 ========================
 */
 void MoveClientToIntermission( gentity_t *ent ) {
-	
+
 	gclient_t * client;
-	
+
 	client = ent->client;
 	
 	// take out of follow mode if needed
@@ -1000,7 +1000,7 @@ void BeginIntermission( void ) {
 	gentity_t	*client;
 
 	if ( level.intermissiontime ) {
-		return;	// already active
+		return; // already active
 	}
 
 	// if in tournement mode, change the wins / losses
@@ -1012,7 +1012,7 @@ void BeginIntermission( void ) {
 	FindIntermissionPoint();
 
 	// move all clients to the intermission point
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
+	for ( i = 0; i < level.maxclients; i++ ) {
 		client = g_entities + i;
 		if ( !client->inuse )
 			continue;
@@ -1075,7 +1075,7 @@ void ExitLevel( void ) {
 	// reset all the scores so we don't enter the intermission again
 	level.teamScores[TEAM_RED] = 0;
 	level.teamScores[TEAM_BLUE] = 0;
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
+	for ( i = 0; i < level.maxclients; i++ ) {
 		cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
@@ -1088,7 +1088,7 @@ void ExitLevel( void ) {
 
 	// change all client states to connecting, so the early players into the
 	// next level will know the others aren't done reconnecting
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
+	for ( i = 0; i < level.maxclients; i++ ) {
 		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
 			level.clients[i].pers.connected = CON_CONNECTING;
 		}
@@ -1238,7 +1238,7 @@ void CheckIntermissionExit( void ) {
 	ready = 0;
 	notReady = 0;
 	readyMask = 0;
-	for ( i = 0 ; i < level.maxclients ; i++) {
+	for ( i = 0; i < level.maxclients; i++ ) {
 		cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
@@ -1246,7 +1246,7 @@ void CheckIntermissionExit( void ) {
 
 		if ( g_entities[i].r.svFlags & SVF_BOT ) {
 			cl->readyToExit = qtrue;
-		} 
+		}
 
 		if ( cl->readyToExit ) {
 			ready++;
@@ -1266,7 +1266,7 @@ void CheckIntermissionExit( void ) {
 
 	// copy the readyMask to each player's stats so
 	// it can be displayed on the scoreboard
-	for ( i = 0 ; i < level.maxclients ; i++) {
+	for ( i = 0; i < level.maxclients; i++) {
 		cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
@@ -1340,7 +1340,7 @@ can see the last frag.
 =================
 */
 static void CheckExitRules( void ) {
- 	int			i;
+	int			i;
 	gclient_t	*cl;
 
 	// if at the intermission, wait for all non-bots to
@@ -1397,7 +1397,7 @@ static void CheckExitRules( void ) {
 			return;
 		}
 
-		for ( i = 0 ; i < level.maxclients ; i++ ) {
+		for ( i = 0; i < level.maxclients; i++ ) {
 			cl = level.clients + i;
 			if ( cl->pers.connected != CON_CONNECTED ) {
 				continue;
@@ -1782,7 +1782,7 @@ void CheckTeamLeader( team_t team ) {
 	int	max_score, max_id;
 	int	max_bot_score, max_bot_id;
 
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
+	for ( i = 0; i < level.maxclients; i++ ) {
 
 		if ( level.clients[i].sess.sessionTeam != team || level.clients[i].pers.connected == CON_DISCONNECTED )
 			continue;
@@ -2028,7 +2028,7 @@ static void G_RunFrame( int levelTime ) {
 
 	// perform final fixups on the players
 	ent = &g_entities[0];
-	for (i = 0 ; i < level.maxclients ; i++, ent++ ) {
+	for ( i = 0; i < level.maxclients; i++, ent++ ) {
 		if ( ent->inuse ) {
 			ClientEndFrame( ent );
 		}

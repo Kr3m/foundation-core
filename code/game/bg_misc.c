@@ -1367,7 +1367,7 @@ const char *eventnames[EV_MAX] = {
 	"EV_PROXIMITY_MINE_TRIGGER",
 	"EV_KAMIKAZE",			// kamikaze explodes
 	"EV_OBELISKEXPLODE",		// obelisk explodes
-	"EV_OBELISKPAIN",			// obelisk is in pain
+	"EV_OBELISKPAIN",		// obelisk is in pain
 	"EV_INVUL_IMPACT",		// invulnerability sphere impact
 	"EV_JUICED",				// invulnerability juiced effect
 	"EV_LIGHTNINGBOLT",		// lightning bolt bounced of invulnerability sphere

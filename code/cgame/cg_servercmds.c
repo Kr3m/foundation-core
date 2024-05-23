@@ -27,8 +27,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 
 #ifdef MISSIONPACK // bk001204
-#include "../../ui/menudef.h" // bk001205 - for Q3_ui as well
+#include "../q3_ui/menudef.h" // bk001205 - for Q3_ui as well
+#endif
 
+#ifdef NEOHUD
+#include "../ui/menudef.h"
+#endif
+
+#if defined MISSIONPACK || defined NEOHUD
 typedef struct {
 	const char *order;
 	int taskNum;
@@ -527,7 +533,7 @@ static void CG_MapRestart( void ) {
 	trap_Cvar_Set( "cg_thirdPerson", "0" );
 }
 
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 
 #define MAX_VOICEFILESIZE	16384
 #define MAX_VOICEFILES		8
@@ -1001,7 +1007,7 @@ void CG_VoiceChat( int mode ) {
 
 	CG_VoiceChatLocal( mode, voiceOnly, clientNum, color, cmd );
 }
-#endif // MISSIONPACK
+#endif // MISSIONPACK || NEOHUD
 
 
 /*
@@ -1043,7 +1049,12 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "cp" ) ) {
+#ifdef NEOHUD
+		item_t serverMsg = dyn_itemArray[ServerMsg_idx];
+		CG_CenterPrint( CG_Argv(1), serverMsg.rect.y, serverMsg.fontsize.w, serverMsg.forecolor.color );
+#else
 		CG_CenterPrint( CG_Argv(1), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+#endif
 		return;
 	}
 
@@ -1093,7 +1104,7 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD	
 	if ( !strcmp( cmd, "vchat" ) ) {
 		CG_VoiceChat( SAY_ALL );
 		return;

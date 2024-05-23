@@ -164,6 +164,10 @@ typedef enum {
 	// 1.32
 	CG_FS_SEEK,
 
+#ifdef NEOHUD
+	CG_FS_GETFILELIST,
+#endif
+
 /*
 	CG_LOADCAMERA,
 	CG_STARTCAMERA,
@@ -205,7 +209,7 @@ typedef enum {
 
 	CG_SHUTDOWN,
 //	void (*CG_Shutdown)( void );
-	// oportunity to flush and close any open files
+	// opportunity to flush and close any open files
 
 	CG_CONSOLE_COMMAND,
 //	qboolean (*CG_ConsoleCommand)( void );

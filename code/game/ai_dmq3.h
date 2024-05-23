@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void BotSetupDeathmatchAI(void);
 //shutdown the deathmatch AI
 void BotShutdownDeathmatchAI(void);
-//let the bot live within it's deathmatch AI net
+//let the bot live within its deathmatch AI net
 void BotDeathmatchAI(bot_state_t *bs, float thinktime);
 //free waypoints
 void BotFreeWaypoints(bot_waypoint_t *wp);
@@ -134,7 +134,7 @@ int BotPopFromActivateGoalStack(bot_state_t *bs);
 void BotClearActivateGoalStack(bot_state_t *bs);
 //returns the team the bot is in
 int BotTeam(bot_state_t *bs);
-//retuns the opposite team of the bot
+//returns the opposite team of the bot
 int BotOppositeTeam(bot_state_t *bs);
 //returns the flag the bot is carrying (CTFFLAG_?)
 int BotCTFCarryingFlag(bot_state_t *bs);

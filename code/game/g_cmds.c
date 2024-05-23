@@ -26,6 +26,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../../ui/menudef.h"			// for the voice chats
 #endif
 
+#ifdef NEOHUD
+#include "../ui/menudef.h"			// for the voice chats
+#endif
+
 /*
 ==================
 DeathmatchScoreboardMessage
@@ -50,7 +54,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	// estimate prefix length to avoid oversize of final string
 	prefix = BG_sprintf( entry, "scores %i %i %i", level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], numSorted );
 	
-	for ( i = 0 ; i < numSorted ; i++ ) {
+	for ( i = 0; i < numSorted; i++ ) {
 
 		cl = &level.clients[level.sortedClients[i]];
 
@@ -706,7 +710,7 @@ qboolean SetTeam( gentity_t *ent, const char *s ) {
 
 	BroadcastTeamChange( client, oldTeam );
 
-	// get and distribute relevent paramters
+	// get and distribute relevant parameters
 	ClientUserinfoChanged( clientNum );
 
 	ClientBegin( clientNum );
@@ -987,7 +991,7 @@ static void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chat
 		G_Printf( "%s%s\n", name, text);
 	}
 
-	// send it to all the apropriate clients
+	// send it to all the appropriate clients
 	for (j = 0; j < level.maxclients; j++) {
 		other = &g_entities[j];
 		G_SayTo( ent, other, mode, color, name, text );
@@ -1057,7 +1061,7 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 	}
 }
 
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 
 static void G_VoiceTo( gentity_t *ent, gentity_t *other, int mode, const char *id, qboolean voiceonly ) {
 	int color;
@@ -1114,7 +1118,7 @@ void G_Voice( gentity_t *ent, gentity_t *target, int mode, const char *id, qbool
 		G_Printf( "voice: %s %s\n", ent->client->pers.netname, id);
 	}
 
-	// send it to all the apropriate clients
+	// send it to all the appropriate clients
 	for (j = 0; j < level.maxclients; j++) {
 		other = &g_entities[j];
 		G_VoiceTo( ent, other, mode, id, voiceonly );
@@ -1833,7 +1837,7 @@ void ClientCommand( int clientNum ) {
 				Cmd_Team_f( ent ); // early team override
 			}
 		}
-		return;	// not fully in game yet
+		return; // not fully in game yet
 	}
 
 	if (Q_stricmp (cmd, "say") == 0) {
@@ -1848,7 +1852,7 @@ void ClientCommand( int clientNum ) {
 		Cmd_Tell_f ( ent );
 		return;
 	}
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 	if (Q_stricmp (cmd, "vsay") == 0) {
 		Cmd_Voice_f (ent, SAY_ALL, qfalse, qfalse);
 		return;

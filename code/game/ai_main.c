@@ -1035,7 +1035,7 @@ int BotAI(int client, float thinktime) {
 			args[strlen(args)-1] = '\0';
 			trap_BotQueueConsoleMessage(bs->cs, CMS_CHAT, args);
 		}
-#ifdef MISSIONPACK
+#if defined MISSIONPACK || defined NEOHUD
 		else if (!Q_stricmp(buf, "vchat")) {
 			BotVoiceChatCommand(bs, SAY_ALL, args);
 		}
@@ -1268,7 +1268,7 @@ qboolean BotAISetupClient( int client, struct bot_settings_s *settings, qboolean
 	if (restart) {
 		BotReadSessionData(bs);
 	}
-	//bot has been setup succesfully
+	//bot has been setup successfully
 	return qtrue;
 }
 
