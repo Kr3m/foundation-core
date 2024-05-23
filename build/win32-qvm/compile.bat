@@ -31,6 +31,11 @@ mkdir vm\cgame
 cd vm\cgame
 @if errorlevel 1 goto quit
 
+%cc1% %cgamedir%\cg_parsehud.c 
+@if errorlevel 1 goto quit
+%cc1% %cgamedir%\cg_drawhud.c 
+@if errorlevel 1 goto quit
+
 %cc1% %cgamedir%\cg_main.c
 @if errorlevel 1 goto quit
 %cc1% %cgamedir%\cg_consolecmds.c
@@ -190,6 +195,8 @@ cd vm\ui
 
 %cc3% %uidir%\ui_addbots.c
 @if errorlevel 1 goto quit
+%cc3% %uidir%\ui_selecthud.c
+@if errorlevel 1 goto quit
 %cc3% %uidir%\ui_atoms.c
 @if errorlevel 1 goto quit
 %cc3% %uidir%\ui_cdkey.c
@@ -265,6 +272,9 @@ cd vm\ui
 %cc3% %uidir%\ui_teamorders.c
 @if errorlevel 1 goto quit
 %cc3% %uidir%\ui_video.c  
+@if errorlevel 1 goto quit
+
+%cc3% %uidir%\ui_HUDinfo.c  
 @if errorlevel 1 goto quit
 
 %cc3% %gamedir%\bg_lib.c 

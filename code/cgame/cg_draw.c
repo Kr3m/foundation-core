@@ -2071,6 +2071,7 @@ CROSSHAIR
 CG_SetCrosshairColor
 =================
 */
+#ifndef NEOHUD
 static void CG_SetCrosshairColor( void ) {
 	static int		colorNum;
 	static float	*colors[] = {
@@ -2099,7 +2100,6 @@ static void CG_SetCrosshairColor( void ) {
 CG_DrawCrosshair
 =================
 */
-#ifndef NEOHUD
 static void CG_DrawCrosshair( void ) {
 	float		w, h;
 	qhandle_t	hShader;
@@ -2126,7 +2126,7 @@ static void CG_DrawCrosshair( void ) {
 		CG_ColorForHealth( hcolor );
 		trap_R_SetColor( hcolor );
 	} else {
-		trap_R_SetColor( NULL );
+		CG_SetCrosshairColor();
 	}
 
 	w = h = cg_crosshairSize.value;

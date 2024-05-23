@@ -10,6 +10,7 @@ QA_SRC = \
 CG_SRC = \
  cg_main $(CGDIR)/cg_syscalls.asm \
  cg_consolecmds cg_draw cg_drawtools cg_effects cg_ents cg_event cg_info \
+ cg_drawhud cg_parsehud \
  cg_localents cg_marks cg_players cg_playerstate cg_predict cg_scoreboard \
  cg_servercmds cg_snapshot cg_view cg_weapons \
  bg_slidemove bg_pmove bg_lib bg_misc \
@@ -18,6 +19,7 @@ CG_SRC = \
 UI_SRC = \
  ui_main $(UIDIR)/ui_syscalls.asm \
  ui_gameinfo ui_atoms ui_cinematics ui_connect ui_controls2 ui_demo2 \
+ ui_hudinfo ui_selecthud \
  ui_mfield ui_credits ui_menu ui_ingame ui_confirm ui_setup ui_options \
  ui_display ui_sound ui_network ui_playermodel ui_players ui_playersettings \
  ui_preferences ui_qmenu ui_serverinfo ui_servers2 ui_sparena \

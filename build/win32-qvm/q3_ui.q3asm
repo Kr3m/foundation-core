@@ -11,6 +11,7 @@ ui_credits
 ui_demo2
 ui_display
 ui_gameinfo
+ui_HUDinfo
 ui_ingame
 ui_menu
 ui_mfield
@@ -25,6 +26,7 @@ ui_playersettings
 ui_preferences
 ui_qmenu
 ui_removebots
+ui_selecthud
 ui_serverinfo
 ui_servers2
 ui_sparena
