@@ -25,6 +25,7 @@ Unofficial Quake III Arena gamecode patch
  * single-line cvar declaration, improved cvar code readability and development efficiency
  * added cg_crosshairColor using Quake 3 color codes.
  * added crosshair color change to UI in game options.
+ * ported CPMA full bright skins from foundation
 
 # IMAGES
 ![out4](https://github.com/Kr3m/foundation-core/assets/290740/8d9435b0-0488-4489-a0ab-6561e89ae29b)
@@ -38,7 +39,6 @@ Unofficial Quake III Arena gamecode patch
 # TODO:
 
  * bugfixes
- * port CPMA full bright skins from foundation
  * improve network code including projectile delag
 
 # Documentation
